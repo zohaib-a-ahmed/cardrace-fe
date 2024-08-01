@@ -1,18 +1,12 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "Next.js",
+  name: "CardRace",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "race with cards",
   mainNav: [
-    {
-      title: "Home",
-      href: "/",
-    },
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn/ui",
-    docs: "https://ui.shadcn.com",
+    github: "https://github.com/zohaib-a-ahmed/cardrace-fe/tree/main",
   },
 }

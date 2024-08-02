@@ -1,79 +1,80 @@
 'use client'
-import React from 'react';
-import { Icons } from "@/components/icons"
-import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
+import React, { useEffect, useState, useCallback } from 'react';
 import Particles from '@/components/magicui/particles';
-
-import { useEffect, useState } from "react";
+import BlurFade from "@/components/magicui/blur-fade";
 import { useTheme } from "next-themes";
+import Dash from '@/components/dash';
+import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
+import axios from 'axios';
 
-const features = [
-  {
-    Icon: Icons.trophy,
-    number: 28,
-    description: "Wins",
-    id: 1,
-    background: <img className="absolute -right-20 -top-20 opacity-60" alt="Games Won" />,
-    className: "col-span-1 row-span-1",
-  },
-  {
-    Icon: Icons.hourglass,
-    number: 1234,
-    description: "Turns",
-    id: 2,
-    background: <img className="absolute -right-20 -top-20 opacity-60" alt="Turns" />,
-    className: "col-span-1 row-span-1",
-  },
-  {
-    Icon: Icons.gamepad,
-    number: 135,
-    description: "Games Played",
-    id: 3,
-    background: <img className="absolute -right-20 -top-20 opacity-60" alt="Games Played" />,
-    className: "col-span-2 row-span-1",
-  },
-];
+interface UserData {
+  username: string;
+  wins: number;
+  turns: number;
+  gamesPlayed: number;
+}
 
-const DashboardComponent = () => {
+const DashboardComponent: React.FC = () => {
     const { theme } = useTheme();
-    const [color, setColor] = useState("#ffffff");
-   
+    const [color, setColor] = useState<string>("#ffffff");
+    const [userData, setUserData] = useState<UserData | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+
     useEffect(() => {
       setColor(theme === "dark" ? "#ffffff" : "#000000");
     }, [theme]);
 
-  return (
-    <section className="min-h-screen flex flex-col items-center justify-center p-4">
-        <Particles
-        className="absolute inset-0"
-        quantity={200}
-        staticity={20}
-        size={1}
-        ease={80}
-        color={color}
-        refresh
-        />
-      <div className="w-full max-w-7xl flex flex-col gap-8 p-8 rounded-lg">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-neutral-100 text-left">
-          Hey, <span className="text-blue-600 dark:text-blue-400">bro</span>
+    const fetchUserProfile = useCallback(async () => {
+      try {
+        const response = await api.get<UserData>('/users/profile');
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          router.push('/auth');
+        } else {
+          setError('Failed to load user profile. Please try again.');
+        }
+      }
+    }, [router]);
+
+    useEffect(() => {
+      fetchUserProfile();
+    }, [fetchUserProfile]);
+
+    if (error) {
+      return <div className="text-center text-red-500">{error}</div>;
+    }
+
+    return (
+      <section className="min-h-screen flex flex-col items-center justify-center p-4">
+          <Particles
+          className="absolute inset-0"
+          quantity={200}
+          staticity={20}
+          size={1}
+          ease={80}
+          color={color}
+          refresh
+          />
+        {userData ? (
+        <BlurFade delay={0.1} inView className="w-full flex items-center justify-center">
+            <Dash 
+                username={userData.username}
+                wins={userData.wins}
+                turns={userData.turns}
+                gamesPlayed={userData.gamesPlayed}
+            />            
+        </BlurFade>
+        ) : (
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-neutral-100 text-center">
+            .:.
         </h1>
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="w-full lg:w-1/2 p-4 rounded-lg">
-            <BentoGrid className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
-              {features.map((feature) => (
-                <BentoCard key={feature.id} {...feature} />
-              ))}
-            </BentoGrid>
-          </div>
-          <div className="w-full lg:w-1/2 p-4 rounded-lg">
-            <div className="bg-gray-100 dark:bg-neutral-800 h-full rounded-lg flex items-center justify-center">
-              <p className="text-xl font-semibold text-gray-600 dark:text-gray-300">Other Component (To be designed)</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+        )}
+      </section>
+    );
 };
 
 export default DashboardComponent;

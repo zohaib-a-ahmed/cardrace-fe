@@ -31,18 +31,21 @@ api.interceptors.request.use(
   }
 );
 
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-        localStorage.removeItem('accessToken');
+// api.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+//         localStorage.removeItem('accessToken');
+//         console.log(error.response)
+//         console.log(getCurrentRoute())
         
-        if (typeof window !== 'undefined' && getCurrentRoute() !== '/') {
-          window.location.href = '/';
-        }
-      }
-      return Promise.reject(error);
-    }
-  );
+//         if (typeof window !== 'undefined' && getCurrentRoute() == '/dash') {
+//           console.log('redirecting yo ass')
+//           //window.location.href = '/';
+//         }
+//       }
+//       return Promise.reject(error);
+//     }
+//   );
 
 export default api;

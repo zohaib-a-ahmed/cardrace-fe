@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useTheme } from "next-themes";
 import { siteConfig } from '@/config/site';
 import AuthCard from '@/components/auth-card';
-import Particles from '@/components/magicui/particles';  // Adjust the import path as needed
+import Particles from '@/components/magicui/particles';
+import { Icons } from "@/components/icons"
 
 const LoginComponent = () => {
   const router = useRouter();

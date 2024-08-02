@@ -25,25 +25,21 @@ const BentoGrid = ({
 const BentoCard = ({
   number,
   className,
-  background,
   Icon,
   description,
-  href,
-  cta,
+  id,
 }: {
   number: number;
   className: string;
-  background: ReactNode;
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   description: string;
-  href: string;
-  cta: string;
+  id: number;
 }) => {
   const { theme } = useTheme();
 
   return (
     <div
-      key={number}
+      key={id}
       className={cn(
         "group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-xl",
         // light styles
@@ -53,7 +49,6 @@ const BentoCard = ({
         className,
       )}
     >
-      <div>{background}</div>
       <div className="pointer-events-none z-10 flex transform-gpu flex-col gap-1 p-6 transition-all duration-300">
         <Icon 
           className={`h-9 w-9 origin-left transform-gpu transition-all duration-300 ease-in-out group-hover:scale-75 ${
@@ -61,7 +56,7 @@ const BentoCard = ({
           }`}
         />
         <h3 className="text-2xl font-semibold text-neutral-700 dark:text-neutral-300 transition-all duration-300 group-hover:text-neutral-900 dark:group-hover:text-white">
-          <NumberTicker value={number}/>
+          {number === 0 ? '0' : <NumberTicker value={number} />}
         </h3>
         <p className="max-w-lg text-neutral-400 transition-all duration-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-300">{description}</p>
       </div>

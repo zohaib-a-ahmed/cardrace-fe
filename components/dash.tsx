@@ -2,6 +2,7 @@ import React from 'react';
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
 import BlurFade from './magicui/blur-fade';
 import { Icons } from "./icons";
+import GameDash from './game-dash';
 
 interface DashProps {
   username: string;
@@ -20,6 +21,7 @@ interface FeatureItem {
 }
 
 const Dash: React.FC<DashProps> = ({ username, wins, turns, gamesPlayed }) => {
+
   const features: FeatureItem[] = [
     {
       Icon: Icons.trophy,
@@ -47,36 +49,36 @@ const Dash: React.FC<DashProps> = ({ username, wins, turns, gamesPlayed }) => {
     },
   ];
 
+  const gameModes = [0, 1]
+
   return (
     <div className="w-full max-w-7xl flex flex-col gap-8 p-8 rounded-lg">
       <BlurFade delay={.25} inView>
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-neutral-100 text-left">
           Hey, <span className="text-blue-600 dark:text-blue-400">{username}</span>
-        </h1>        
+        </h1>
       </BlurFade>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-1/2 p-4 rounded-lg">
-        <BlurFade delay={.25 * 2} inView>
+          <BlurFade delay={.25 * 2} inView>
             <BentoGrid className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
               {features.map((feature) => (
                 <BentoCard key={feature.id} {...feature} />
               ))}
-            </BentoGrid>          
-        </BlurFade>
+            </BentoGrid>
+          </BlurFade>
         </div>
-        <div className="w-full lg:w-1/2 p-4 rounded-lg">
-        <BlurFade delay={.25 * 3} inView>
-            <div className="bg-gray-100 dark:bg-neutral-800 h-full rounded-lg flex items-center justify-center">
-              <p className="text-xl font-semibold text-gray-600 dark:text-gray-300">Other Component (To be designed)</p>
-            </div>          
-        </BlurFade>
+        <div className="w-full lg:w-1/2 h-full p-4 rounded-lg">
+          <BlurFade delay={.25 * 3} inView>
+            <GameDash />
+          </BlurFade>
+          <BlurFade delay={.25 * 4} inView className='pt-8 sm:pt-10'>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-neutral-100 text-right">
+              Let's <span className="text-red-600 dark:text-red-400">play.</span>
+            </h1>
+          </BlurFade>
         </div>
       </div>
-      <BlurFade delay={.25 * 4} inView>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-neutral-100 text-right">
-          Let's <span className="text-red-600 dark:text-red-400">play.</span>
-        </h1>        
-      </BlurFade>
     </div>
   );
 };

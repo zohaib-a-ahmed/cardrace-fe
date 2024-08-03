@@ -16,7 +16,7 @@ import { Icons } from './icons';
 
 export function CreateGame() {
     const [roomName, setRoomName] = useState('My Room');
-    const [numPlayers, setNumPlayers] = useState(3);
+    const [numPlayers, setNumPlayers] = useState(4);
 
     const handleCreateGame = () => {
         console.log('Creating game:', { roomName, numPlayers });
@@ -27,14 +27,14 @@ export function CreateGame() {
         <Dialog>
             <DialogTrigger asChild>
                 <Button className="w-full" size="lg">
-                    Create New Game
+                    Create New
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle className="text-2xl">Create a New Game</DialogTitle>
                     <DialogDescription>
-                        Set up your game room and invite players.
+                        Set up your game room!
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-6 py-4">

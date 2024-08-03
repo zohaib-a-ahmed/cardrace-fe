@@ -49,7 +49,6 @@ const Dash: React.FC<DashProps> = ({ username, wins, turns, gamesPlayed }) => {
     },
   ];
 
-  const gameModes = [0, 1]
 
   return (
     <div className="w-full max-w-7xl flex flex-col gap-8 p-8 rounded-lg">

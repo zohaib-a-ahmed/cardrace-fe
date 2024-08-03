@@ -6,6 +6,7 @@ import {
   Crown,
   Trophy,
   Hourglass,
+  User,
   type Icon as LucideIcon,
 } from "lucide-react"
 
@@ -18,6 +19,7 @@ export const Icons = {
   gamepad: Gamepad2,
   trophy: Trophy,
   hourglass: Hourglass,
+  player: User,
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <path

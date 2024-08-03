@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
     Card,
     CardContent,
-    CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -11,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Icons } from './icons';
 import { cn } from "@/lib/utils";
+import { CreateGame } from './game-creator';
 
 export default function GameDash() {
     const [gameCode, setGameCode] = useState('');
@@ -29,9 +28,7 @@ export default function GameDash() {
                 <CardTitle className='flex justify-center'><Icons.gamepad className="mr-2 h-8 w-8" /></CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-6 z-10">
-                <Button className="w-full" size="lg">
-                    Create New Game
-                </Button>
+                <CreateGame/>
                 <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100 text-center">
                     or
                 </h2>

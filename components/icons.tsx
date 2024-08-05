@@ -2,8 +2,11 @@ import {
   LucideProps,
   Moon,
   SunMedium,
-  Twitter,
+  Gamepad2,
   Crown,
+  Trophy,
+  Hourglass,
+  User,
   type Icon as LucideIcon,
 } from "lucide-react"
 
@@ -12,8 +15,11 @@ export type Icon = LucideIcon
 export const Icons = {
   sun: SunMedium,
   moon: Moon,
-  twitter: Twitter,
   logo: Crown,
+  gamepad: Gamepad2,
+  trophy: Trophy,
+  hourglass: Hourglass,
+  player: User,
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <path

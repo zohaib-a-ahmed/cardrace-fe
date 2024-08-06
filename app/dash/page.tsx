@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Particles from '@/components/magicui/particles';
 import { useTheme } from "next-themes";
-import Dash from '@/components/dash';
+import Dash from '@/components/dash/dash';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import axios from 'axios';
@@ -31,8 +31,8 @@ const DashboardComponent: React.FC = () => {
             setUserData(response.data);
         } catch (error) {
             console.error('Error fetching user profile:', error);
+            router.push('/auth');
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                router.push('/auth');
             } else {
                 setError('Failed to load user profile. Please try again.');
             }

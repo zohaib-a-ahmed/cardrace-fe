@@ -9,10 +9,10 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Label } from "./ui/label"
-import { Icons } from './icons';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '@radix-ui/react-label';
+import { Icons } from '../icons';
 
 export function CreateGame() {
     const [roomName, setRoomName] = useState('My Room');

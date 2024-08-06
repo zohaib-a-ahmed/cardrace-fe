@@ -7,10 +7,20 @@ import {
   Trophy,
   Hourglass,
   User,
+  Spade,
+  Heart,
+  Club,
+  Diamond,
+  VenetianMask,
+  ShipWheel,
+  Mountain,
+  Sword,
+  Plane,
+  Plus,
+  Minus,
   type Icon as LucideIcon,
 } from "lucide-react"
-
-export type Icon = LucideIcon
+export type Icon = typeof LucideIcon
 
 export const Icons = {
   sun: SunMedium,
@@ -20,6 +30,17 @@ export const Icons = {
   trophy: Trophy,
   hourglass: Hourglass,
   player: User,
+  spade: Spade,
+  diamond: Diamond,
+  heart: Heart,
+  club: Club,
+  joker: VenetianMask,
+  A: ShipWheel,
+  B: Mountain,
+  C: Sword,
+  D: Plane,
+  plus : Plus,
+  minus : Minus,
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <path

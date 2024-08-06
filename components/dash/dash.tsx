@@ -1,7 +1,7 @@
 import React from 'react';
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
-import BlurFade from './magicui/blur-fade';
-import { Icons } from "./icons";
+import BlurFade from '../magicui/blur-fade';
+import { Icons } from '../icons';
 import GameDash from './game-dash';
 
 interface DashProps {

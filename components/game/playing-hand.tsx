@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import PlayingCard from './playing-card';
 import { Icons } from "../icons";
-import { cn } from "@/lib/utils";
-import { CardInfo, PlayingHandProps } from '@/lib/utils';
-
+import { CardInfo, PlayingHandProps, Marble } from '@/lib/utils';
+import MarbleIcon from './marble';
 
 export default function PlayingHand({
     cards,
     playerColor,
     onSubmit,
+    marbles,
     turn
 }: PlayingHandProps) {
-    const [selectedMarble, setSelectedMarble] = useState<string>('A');
+
+    const playerMarbles = useMemo(() => 
+        marbles.filter(marble => marble.color === playerColor),
+    [marbles, playerColor]);
+
+    const [selectedMarble, setSelectedMarble] = useState<Marble | null>(null);
     const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
+
+    const handleMarbleSelect = (marble: Marble) => {
+        setSelectedMarble(marble);
+    };
 
     const handleCardClick = (card: CardInfo) => {
         setSelectedCard(card);
@@ -25,13 +34,13 @@ export default function PlayingHand({
     const handleSubmit = () => {
         if (selectedMarble && selectedCard) {
             onSubmit(selectedMarble, selectedCard);
-            setSelectedCard(null)
-            setSelectedMarble('A')
+            setSelectedCard(null);
+            setSelectedMarble(null);
         }
     };
 
-    const getMarbleIcon = (marble: string) => {
-        switch (marble) {
+    const getMarbleIcon = (id: string) => {
+        switch (id) {
             case 'A': return <Icons.A className="w-4 h-4" />;
             case 'B': return <Icons.B className="w-4 h-4" />;
             case 'C': return <Icons.C className="w-4 h-4" />;
@@ -54,22 +63,21 @@ export default function PlayingHand({
     return (
         <Card className="fixed bottom-0 left-0 right-0 p-4 shadow-lg">
             <div className="w-4 h-4 rounded-full absolute top-2 right-2" style={{ backgroundColor: playerColor }}></div>
-            <div className="flex flex-col space-y-4 items-center justify-center ">
+            <div className="flex flex-col space-y-4 items-center justify-center">
                 <div className="flex justify-between items-center space-x-2">
-                    <Tabs value={selectedMarble} onValueChange={setSelectedMarble} className="w-auto">
+                    <Tabs value={selectedMarble?.id ?? ''} onValueChange={(value) => handleMarbleSelect(playerMarbles.find(m => m.id === value) ?? playerMarbles[0])} className="w-auto">
                         <TabsList>
-                            <TabsTrigger value="A"><Icons.A className="w-4 h-4" /></TabsTrigger>
-                            <TabsTrigger value="B"><Icons.B className="w-4 h-4" /></TabsTrigger>
-                            <TabsTrigger value="C"><Icons.C className="w-4 h-4" /></TabsTrigger>
-                            <TabsTrigger value="D"><Icons.D className="w-4 h-4" /></TabsTrigger>
+                            {playerMarbles.map((marble) => (
+                                <TabsTrigger key={marble.id} value={marble.id}>
+                                    {getMarbleIcon(marble.id)}
+                                </TabsTrigger>
+                            ))}
                         </TabsList>
                     </Tabs>
                     <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2 p-2 bg-secondary rounded-lg">
                             {selectedMarble && (
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: playerColor }}>
-                                    {getMarbleIcon(selectedMarble)}
-                                </div>
+                                <MarbleIcon marble={selectedMarble} playerColor={playerColor}/>
                             )}
                             {selectedCard && (
                                 <div className="flex items-center space-x-1">
@@ -91,7 +99,7 @@ export default function PlayingHand({
                         {cards.map((card, index) => (
                             <CarouselItem key={index} className="pl-4 basis-1/8">
                                 <div onClick={() => handleCardClick(card)}>
-                                    <PlayingCard cardValue={card.value} cardSuit={card.suit} />
+                                    <PlayingCard value={card.value} suit={card.suit} />
                                 </div>
                             </CarouselItem>
                         ))}

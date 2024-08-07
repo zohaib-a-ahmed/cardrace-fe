@@ -6,18 +6,14 @@ import {
 import { Icons } from '../icons';
 import { cn } from "@/lib/utils"
 import { LucideIcon } from 'lucide-react';
+import { CardInfo } from '@/lib/utils';
 
-interface PlayingCardProps {
-    cardValue: string;
-    cardSuit: 'spade' | 'heart' | 'diamond' | 'club' | 'joker';
-}
-
-export default function PlayingCard({ cardValue, cardSuit }: PlayingCardProps) {
-    const isRed = cardSuit === 'heart' || cardSuit === 'diamond';
-    const isJoker = cardSuit === 'joker';
+export default function PlayingCard({ value, suit }: CardInfo) {
+    const isRed = suit === 'heart' || suit === 'diamond';
+    const isJoker = suit === 'joker';
 
     const getSuitIcon = (): LucideIcon => {
-        switch (cardSuit) {
+        switch (suit) {
             case 'spade': return Icons.spade;
             case 'heart': return Icons.heart;
             case 'diamond': return Icons.diamond;
@@ -29,7 +25,7 @@ export default function PlayingCard({ cardValue, cardSuit }: PlayingCardProps) {
 
     const renderCardContent = () => {
         const SuitIcon = getSuitIcon();
-        const displayValue = isJoker ? 'J' : cardValue;
+        const displayValue = isJoker ? 'J' : value;
 
         return (
             <>
@@ -42,7 +38,7 @@ export default function PlayingCard({ cardValue, cardSuit }: PlayingCardProps) {
                         <div className="text-[10px] sm:text-sm md:text-base font-bold">Joker</div>
                     ) : (
                         <div className="text-lg sm:text-2xl md:text-3xl font-bold">
-                            {cardValue}
+                            {value}
                         </div>
                     )}
                 </div>

@@ -10,21 +10,28 @@ export interface CardInfo {
   suit: 'spade' | 'heart' | 'diamond' | 'club' | 'joker';
 }
 
+
 export interface PlayingHandProps {
   cards: CardInfo[];
+  marbles: Marble[];
   playerColor: string;
-  onSubmit: (marble: string, card: CardInfo) => void;
+  onSubmit: (marble: Marble, card: CardInfo) => void;
   turn: boolean;
 }
 
-export interface MoveConfirmationDrawerProps {
+export interface MoveConfirmationProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedMarble: string;
+  selectedMarble: Marble;
   selectedCard: CardInfo;
-  onFinalSubmit: (marble: string, card: CardInfo, targetMarble?: Marble, specialAction?: string) => void;
+  onFinalSubmit: (marble: Marble, card: CardInfo, targetMarble: Marble | null, specialAction: number | null) => void;
   marbles: Marble[];
   playerColor: string;
+}
+
+export interface MarbleProps {
+  marble: Marble,
+  playerColor: string,
 }
 
 export interface SpecialContentProps {

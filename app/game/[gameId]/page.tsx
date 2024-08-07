@@ -1,50 +1,43 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import PlayingHand from '@/components/game/playing-hand';
+import MoveConfirmation from '@/components/game/move-confirm';
 import { CardInfo, GameState, HandState, exampleGameState, exampleHandState, Marble } from '@/lib/utils';
 
 export default function GameRoom() {
     const [gameState, setGameState] = useState<GameState>(exampleGameState);
     const [handState, setHandState] = useState<HandState>(exampleHandState);
     const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
-    const [selectedMarble, setSelectedMarble] = useState<string | null>(null);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedMarble, setSelectedMarble] = useState<Marble | null>(null);
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
-    const handleSubmit = (marble: string, card: CardInfo) => {
+    const handleSubmit = (marble: Marble, card: CardInfo) => {
         setSelectedCard(card);
         setSelectedMarble(marble);
-        setIsDrawerOpen(true);
+        setIsConfirmationOpen(true);
     };
 
-    const handleDrawerClose = () => {
-        setIsDrawerOpen(false);
+    const handleConfirmationClose = () => {
+        setIsConfirmationOpen(false);
         setSelectedCard(null);
         setSelectedMarble(null);
     };
 
-    const pushMove = (marble: string, card: CardInfo, targetMarble?: Marble, specialAction?:number) => {
-        console.log('Final move submission:', 'Marble:', marble, 'Card:', card.value, 'of', card.suit, 'Special Action:', specialAction, 'Target Marble:', targetMarble?.id, 'Target Color:', targetMarble?.color);
+    const pushMove = (marble: Marble, card: CardInfo, targetMarble: Marble | null, specialAction: number | null) => {
+        console.log('Final move submission:', 'Marble:', marble.position, 'Card:', card.value, 'of', card.suit, 'Special Action:', specialAction, 'Target Marble:', targetMarble?.position, 'Target Color:', targetMarble?.color);
 
-        // server will broadcast new game state if valid move + processing
+        // send for move validation
+        // if valid move, server will broadcast new game state after processing
         setGameState(prevState => ({
             ...prevState,
             lastMove: { card },
         }));
         // if valid move, new handstate will be returned else error for invalid move
-
-        setIsDrawerOpen(false);
-        setSelectedCard(null);
-        setSelectedMarble(null);
+        handleConfirmationClose();
     };
-
 
     const currentPlayer = gameState.players.find(player => player.color === gameState.currentTurn.color);
     const isPlayerTurn = handState.color === gameState.currentTurn.color;
-
-    useEffect(() => {
-        console.log('Current game state:', gameState);
-        console.log('Current hand state:', handState);
-    }, [gameState, handState]);
 
     return (
         <div className="p-4 pb-64">
@@ -68,10 +61,22 @@ export default function GameRoom() {
             <PlayingHand
                 cards={handState.cards}
                 playerColor={handState.color}
+                marbles={gameState.marbles}
                 onSubmit={handleSubmit}
                 turn={isPlayerTurn}
             />
 
+            {selectedMarble && selectedCard && (
+                <MoveConfirmation
+                    isOpen={isConfirmationOpen}
+                    onClose={handleConfirmationClose}
+                    selectedMarble={selectedMarble}
+                    selectedCard={selectedCard}
+                    onFinalSubmit={pushMove}
+                    marbles={gameState.marbles}
+                    playerColor={handState.color}
+                />
+            )}
         </div>
     );
 }

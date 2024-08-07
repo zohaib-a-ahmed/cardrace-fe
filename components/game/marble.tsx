@@ -1,6 +1,11 @@
-import { Marble, MarbleProps } from "@/lib/utils";
+import { Marble } from "@/lib/types";
 import { Icons } from "../icons";
 
+interface MarbleProps {
+    marble: Marble,
+    playerColor: string,
+  }
+  
 export default function MarbleIcon({ marble, playerColor }: MarbleProps) {
 
     const getMarbleIcon = (id: string) => {
@@ -15,7 +20,7 @@ export default function MarbleIcon({ marble, playerColor }: MarbleProps) {
 
     return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: playerColor }}>
-            {getMarbleIcon(marble.id)}
+            {getMarbleIcon(marble.type)}
         </div>
     )
 }

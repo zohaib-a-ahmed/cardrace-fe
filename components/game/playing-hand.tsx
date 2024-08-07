@@ -5,8 +5,16 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Button } from "@/components/ui/button";
 import PlayingCard from './playing-card';
 import { Icons } from "../icons";
-import { CardInfo, PlayingHandProps, Marble } from '@/lib/utils';
+import { Card as CardType, Marble, PlayerColor } from '@/lib/types';
 import MarbleIcon from './marble';
+
+interface PlayingHandProps {
+    cards: CardType[];
+    marbles: Marble[];
+    playerColor: PlayerColor;
+    onSubmit: (marble: Marble, card: CardType) => void;
+    turn: boolean;
+}
 
 export default function PlayingHand({
     cards,
@@ -21,13 +29,13 @@ export default function PlayingHand({
     [marbles, playerColor]);
 
     const [selectedMarble, setSelectedMarble] = useState<Marble | null>(null);
-    const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
+    const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
 
     const handleMarbleSelect = (marble: Marble) => {
         setSelectedMarble(marble);
     };
 
-    const handleCardClick = (card: CardInfo) => {
+    const handleCardClick = (card: CardType) => {
         setSelectedCard(card);
     };
 
@@ -36,6 +44,16 @@ export default function PlayingHand({
             onSubmit(selectedMarble, selectedCard);
             setSelectedCard(null);
             setSelectedMarble(null);
+        }
+    };
+
+    const getSuitIcon = (suit: CardType['suit']) => {
+        switch (suit) {
+            case 'spade': return <Icons.spade className="w-4 h-4" />;
+            case 'heart': return <Icons.heart className="w-4 h-4" />;
+            case 'diamond': return <Icons.diamond className="w-4 h-4" />;
+            case 'club': return <Icons.club className="w-4 h-4" />;
+            case 'joker': return <Icons.joker className="w-4 h-4" />;
         }
     };
 
@@ -48,28 +66,22 @@ export default function PlayingHand({
             default: return null;
         }
     };
-
-    const getSuitIcon = (suit: string) => {
-        switch (suit) {
-            case 'spade': return <Icons.spade className="w-4 h-4" />;
-            case 'heart': return <Icons.heart className="w-4 h-4" />;
-            case 'diamond': return <Icons.diamond className="w-4 h-4" />;
-            case 'club': return <Icons.club className="w-4 h-4" />;
-            case 'joker': return <Icons.joker className="w-4 h-4" />;
-            default: return null;
-        }
-    };
+    const carouselBasis = useMemo(() => {
+        const numCards = cards.length;
+        const minBasis = Math.min(numCards, 8);
+        return `basis-1/${minBasis}`;
+    }, [cards]);
 
     return (
         <Card className="fixed bottom-0 left-0 right-0 p-4 shadow-lg">
             <div className="w-4 h-4 rounded-full absolute top-2 right-2" style={{ backgroundColor: playerColor }}></div>
             <div className="flex flex-col space-y-4 items-center justify-center">
                 <div className="flex justify-between items-center space-x-2">
-                    <Tabs value={selectedMarble?.id ?? ''} onValueChange={(value) => handleMarbleSelect(playerMarbles.find(m => m.id === value) ?? playerMarbles[0])} className="w-auto">
+                    <Tabs value={selectedMarble?.type ?? ''} onValueChange={(value) => handleMarbleSelect(playerMarbles.find(m => m.type === value) ?? playerMarbles[0])} className="w-auto">
                         <TabsList>
                             {playerMarbles.map((marble) => (
-                                <TabsTrigger key={marble.id} value={marble.id}>
-                                    {getMarbleIcon(marble.id)}
+                                <TabsTrigger key={marble.type} value={marble.type}>
+                                    {getMarbleIcon(marble.type)}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
@@ -97,9 +109,9 @@ export default function PlayingHand({
                 <Carousel className="w-full max-w-5xl mx-auto">
                     <CarouselContent className="-ml-4">
                         {cards.map((card, index) => (
-                            <CarouselItem key={index} className="pl-4 basis-1/8">
+                            <CarouselItem key={index} className={`pl-4 ${carouselBasis}`}>
                                 <div onClick={() => handleCardClick(card)}>
-                                    <PlayingCard value={card.value} suit={card.suit} />
+                                    <PlayingCard card={card} />
                                 </div>
                             </CarouselItem>
                         ))}

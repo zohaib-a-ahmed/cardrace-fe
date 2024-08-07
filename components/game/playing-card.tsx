@@ -6,9 +6,14 @@ import {
 import { Icons } from '../icons';
 import { cn } from "@/lib/utils"
 import { LucideIcon } from 'lucide-react';
-import { CardInfo } from '@/lib/utils';
+import { Card as CardType, CardSuit, CardValue } from '@/lib/types';
 
-export default function PlayingCard({ value, suit }: CardInfo) {
+interface PlayingCardProps {
+    card: CardType;
+}
+
+export default function PlayingCard({ card }: PlayingCardProps) {
+    const { value, suit } = card;
     const isRed = suit === 'heart' || suit === 'diamond';
     const isJoker = suit === 'joker';
 
@@ -19,7 +24,6 @@ export default function PlayingCard({ value, suit }: CardInfo) {
             case 'diamond': return Icons.diamond;
             case 'club': return Icons.club;
             case 'joker': return Icons.joker;
-            default: return Icons.spade; // Fallback icon, should never happen with proper typing
         }
     };
 

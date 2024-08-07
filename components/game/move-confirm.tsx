@@ -1,5 +1,5 @@
 'use client'
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import {
     Drawer,
     DrawerContent,
@@ -8,9 +8,19 @@ import {
     DrawerTitle,
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { MoveConfirmationProps, Marble, CardInfo } from "@/lib/utils"
+import { Marble, Card as CardType, PlayerColor } from "@/lib/types"
 import PlayingCard from "./playing-card"
 import MarbleIcon from "./marble"
+
+interface MoveConfirmationProps {
+    isOpen: boolean;
+    onClose: () => void;
+    selectedMarble: Marble;
+    selectedCard: CardType;
+    onFinalSubmit: (marble: Marble, card: CardType, targetMarble: Marble | null, specialAction: number | null) => void;
+    marbles: Marble[];
+    playerColor: PlayerColor;
+}
 
 export default function MoveConfirmation({
     isOpen,
@@ -44,11 +54,12 @@ export default function MoveConfirmation({
                     </DrawerHeader>
                     <div className="pb-0">
                         <div className="flex flex-col items-center space-y-4 justify-center py-4 text-center">
-                            <PlayingCard value={selectedCard.value} suit={selectedCard.suit} />
+                            <PlayingCard card={selectedCard} />
 
                             {isSpecialCard && (
                                 <div>
-                                    fuck
+                                    {/* Special card logic here */}
+                                    Special card options will be implemented here
                                 </div>
                             )}
                         </div>

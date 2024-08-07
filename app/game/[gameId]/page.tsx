@@ -1,67 +1,66 @@
 'use client'
 import React, { useState, useEffect } from 'react';
+import { exampleGameState, exampleHandState } from '@/lib/example';
+import { GameState, HandState, Marble, Card } from '@/lib/types';
 import PlayingHand from '@/components/game/playing-hand';
 import MoveConfirmation from '@/components/game/move-confirm';
-import { CardInfo, GameState, HandState, exampleGameState, exampleHandState, Marble } from '@/lib/utils';
 
 export default function GameRoom() {
     const [gameState, setGameState] = useState<GameState>(exampleGameState);
     const [handState, setHandState] = useState<HandState>(exampleHandState);
-    const [selectedCard, setSelectedCard] = useState<CardInfo | null>(null);
     const [selectedMarble, setSelectedMarble] = useState<Marble | null>(null);
+    const [selectedCard, setSelectedCard] = useState<Card | null>(null);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
-    const handleSubmit = (marble: Marble, card: CardInfo) => {
-        setSelectedCard(card);
+    const currentPlayer = gameState.players.find(player => player === gameState.currentTurn);
+    const isPlayerTurn = currentPlayer === handState.userName;
+
+    const handleSubmit = (marble: Marble, card: Card) => {
         setSelectedMarble(marble);
+        setSelectedCard(card);
         setIsConfirmationOpen(true);
     };
 
     const handleConfirmationClose = () => {
         setIsConfirmationOpen(false);
-        setSelectedCard(null);
         setSelectedMarble(null);
+        setSelectedCard(null);
     };
 
-    const pushMove = (marble: Marble, card: CardInfo, targetMarble: Marble | null, specialAction: number | null) => {
-        console.log('Final move submission:', 'Marble:', marble.position, 'Card:', card.value, 'of', card.suit, 'Special Action:', specialAction, 'Target Marble:', targetMarble?.position, 'Target Color:', targetMarble?.color);
-
-        // send for move validation
-        // if valid move, server will broadcast new game state after processing
-        setGameState(prevState => ({
+    const pushMove = (marble: Marble, card: Card, targetMarble: Marble | null, specialAction: number | null) => {
+        // Implement move logic here
+        console.log('Move submitted:', { marble, card, targetMarble, specialAction });
+        // Update game state based on the move
+        // For now, we'll just remove the card from the player's hand
+        setHandState(prevState => ({
             ...prevState,
-            lastMove: { card },
+            hand: prevState.hand.filter(c => c.value !== card.value || c.suit !== card.suit)
         }));
-        // if valid move, new handstate will be returned else error for invalid move
-        handleConfirmationClose();
+        // In a real game, you'd send this move to the server and update the game state accordingly
     };
-
-    const currentPlayer = gameState.players.find(player => player.color === gameState.currentTurn.color);
-    const isPlayerTurn = handState.color === gameState.currentTurn.color;
 
     return (
         <div className="p-4 pb-64">
             <div className="mb-4">
                 <h2 className="text-xl font-bold">Game Status</h2>
-                <p>Current Turn: {currentPlayer ? `${currentPlayer.username} (${currentPlayer.color})` : 'Unknown'}</p>
-                <p>Last Move: {gameState.lastMove ? `${gameState.lastMove.card.value} of ${gameState.lastMove.card.suit}` : 'None'}</p>
+                <p>Current Turn: {currentPlayer ? `${currentPlayer} (${gameState.board.startPositions[currentPlayer]})` : 'Unknown'}</p>
             </div>
 
             <div className="mb-4">
                 <h3 className="text-lg font-bold">Players</h3>
                 <ul>
                     {gameState.players.map((player, index) => (
-                        <li key={index} className={player.color === gameState.currentTurn.color ? 'font-bold' : ''}>
-                            {player.username} ({player.color})
+                        <li key={index} className={player === gameState.currentTurn ? 'font-bold' : ''}>
+                            {player} (Starting position: {gameState.board.startPositions[player]})
                         </li>
                     ))}
                 </ul>
             </div>
 
             <PlayingHand
-                cards={handState.cards}
+                cards={handState.hand}
                 playerColor={handState.color}
-                marbles={gameState.marbles}
+                marbles={handState.marbles}
                 onSubmit={handleSubmit}
                 turn={isPlayerTurn}
             />
@@ -73,7 +72,7 @@ export default function GameRoom() {
                     selectedMarble={selectedMarble}
                     selectedCard={selectedCard}
                     onFinalSubmit={pushMove}
-                    marbles={gameState.marbles}
+                    marbles={handState.marbles}
                     playerColor={handState.color}
                 />
             )}

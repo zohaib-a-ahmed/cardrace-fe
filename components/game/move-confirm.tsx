@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Drawer,
     DrawerContent,
@@ -35,14 +35,25 @@ export default function MoveConfirmation({
     const [specification, setSpecification] = useState<MoveSpecification | null>(null);
     const [targetMarble, setTargetMarble] = useState<Marble | null>(null);
 
+    const isSpecialCard = ['4', '7', '10', 'J', 'A', 'joker'].includes(selectedCard.value);
+
+    useEffect(() => {
+        // Set default specification for non-special cards
+        if (!isSpecialCard) {
+            setSpecification({ type: 'standard' });
+            setTargetMarble(null);
+        } else {
+            setSpecification(null);
+            setTargetMarble(null);
+        }
+    }, [selectedCard, isSpecialCard]);
+
     const handleConfirm = () => {
         if (specification) {
             onFinalSubmit(selectedMarble, selectedCard, specification, targetMarble);
             onClose();
         }
     };
-
-    const isSpecialCard = ['4', '7', '10', 'J', 'A', 'joker'].includes(selectedCard.value);
 
     const handleSpecify = (newSpecification: MoveSpecification, newTargetMarble: Marble | null) => {
         setSpecification(newSpecification);
@@ -74,7 +85,10 @@ export default function MoveConfirmation({
                         </div>
                     </div>
                     <DrawerFooter>
-                        <Button onClick={handleConfirm} disabled={isSpecialCard && !specification}>
+                        <Button 
+                            onClick={handleConfirm} 
+                            disabled={!specification}
+                        >
                             Confirm
                         </Button>
                     </DrawerFooter>

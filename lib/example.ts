@@ -1,4 +1,5 @@
 import { GameState, BoardPosition, PlayerColor } from './types';
+import { getAllMarbles } from './utils';
 
 export const exampleGameState: GameState = {
   gameId: "game123",
@@ -25,7 +26,7 @@ export const exampleGameState: GameState = {
         { position: 3, marble: null }
       ],
       Charlie: [
-        { position: 0, marble: { color: "green", userName: "Charlie", type: "A" } },
+        { position: 0, marble: null },
         { position: 1, marble: null },
         { position: 2, marble: { color: "green", userName: "Charlie", type: "C" } },
         { position: 3, marble: { color: "green", userName: "Charlie", type: "D" } }
@@ -82,10 +83,5 @@ export const exampleHandState: HandState = {
         { value: "3", suit: "club" },
         { value: "joker", suit: "joker" },
     ],
-    marbles: [
-        { color: "red", userName: "Alice", type: "A" },
-        { color: "red", userName: "Alice", type: "B" },
-        { color: "red", userName: "Alice", type: "C" },
-        { color: "red", userName: "Alice", type: "D" }
-    ]
+    marbles: getAllMarbles(exampleGameState)
 };

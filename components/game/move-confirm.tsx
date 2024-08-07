@@ -8,16 +8,17 @@ import {
     DrawerTitle,
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { Marble, Card as CardType, PlayerColor } from "@/lib/types"
+import { Marble, Card as CardType, PlayerColor, MoveSpecification } from "@/lib/types"
 import PlayingCard from "./playing-card"
 import MarbleIcon from "./marble"
+import SpecialHandler from "./special"
 
 interface MoveConfirmationProps {
     isOpen: boolean;
     onClose: () => void;
     selectedMarble: Marble;
     selectedCard: CardType;
-    onFinalSubmit: (marble: Marble, card: CardType, targetMarble: Marble | null, specialAction: number | null) => void;
+    onFinalSubmit: (marble: Marble, card: CardType, specification: MoveSpecification, targetMarble: Marble | null) => void;
     marbles: Marble[];
     playerColor: PlayerColor;
 }
@@ -31,16 +32,22 @@ export default function MoveConfirmation({
     marbles,
     playerColor
 }: MoveConfirmationProps) {
+    const [specification, setSpecification] = useState<MoveSpecification | null>(null);
     const [targetMarble, setTargetMarble] = useState<Marble | null>(null);
-    const [specialAction, setSpecialAction] = useState<number | null>(null);
-    const [isSpecialCaseResolved, setIsSpecialCaseResolved] = useState(false);
 
     const handleConfirm = () => {
-        onFinalSubmit(selectedMarble, selectedCard, targetMarble, specialAction);
-        onClose();
+        if (specification) {
+            onFinalSubmit(selectedMarble, selectedCard, specification, targetMarble);
+            onClose();
+        }
     };
 
     const isSpecialCard = ['4', '7', '10', 'J', 'A', 'joker'].includes(selectedCard.value);
+
+    const handleSpecify = (newSpecification: MoveSpecification, newTargetMarble: Marble | null) => {
+        setSpecification(newSpecification);
+        setTargetMarble(newTargetMarble);
+    };
 
     return (
         <Drawer open={isOpen} onOpenChange={onClose}>
@@ -57,15 +64,17 @@ export default function MoveConfirmation({
                             <PlayingCard card={selectedCard} />
 
                             {isSpecialCard && (
-                                <div>
-                                    {/* Special card logic here */}
-                                    Special card options will be implemented here
-                                </div>
+                                <SpecialHandler
+                                    selectedMarble={selectedMarble}
+                                    selectedCard={selectedCard}
+                                    marbles={marbles}
+                                    onSpecify={handleSpecify}
+                                />
                             )}
                         </div>
                     </div>
                     <DrawerFooter>
-                        <Button onClick={handleConfirm} disabled={isSpecialCard && !isSpecialCaseResolved}>
+                        <Button onClick={handleConfirm} disabled={isSpecialCard && !specification}>
                             Confirm
                         </Button>
                     </DrawerFooter>

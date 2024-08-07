@@ -61,3 +61,21 @@ export interface HandState {
 
 // Utility type for positions
 export type Position = number;
+
+
+// Moves
+export type MoveSpecification = 
+  | { type: 'standard' }
+  | { type: 'forward' | 'backward' } // for 4
+  | { type: 'split', splitValue: number } // for 7
+  | { type: 'swap' } // for J
+  | { type: 'start' | 'move', value: 1 | 11 } // for A
+  | { type: 'joker', actingAs: CardValue, specification?: MoveSpecification };
+
+export interface Move {
+  playerId: string;
+  card: Card;
+  marble: Marble;
+  targetMarble: Marble | null;
+  specification: MoveSpecification;
+}

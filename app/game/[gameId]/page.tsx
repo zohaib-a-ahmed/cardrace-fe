@@ -1,9 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { exampleGameState, exampleHandState } from '@/lib/example';
-import { GameState, HandState, Marble, Card } from '@/lib/types';
+import { GameState, HandState, Marble, Card, MoveSpecification } from '@/lib/types';
 import PlayingHand from '@/components/game/playing-hand';
 import MoveConfirmation from '@/components/game/move-confirm';
+import { createMove } from '@/lib/utils'; // Assuming you've created this utility function
 
 export default function GameRoom() {
     const [gameState, setGameState] = useState<GameState>(exampleGameState);
@@ -18,6 +19,7 @@ export default function GameRoom() {
     const handleSubmit = (marble: Marble, card: Card) => {
         setSelectedMarble(marble);
         setSelectedCard(card);
+        console.log(marble, card);
         setIsConfirmationOpen(true);
     };
 
@@ -27,16 +29,28 @@ export default function GameRoom() {
         setSelectedCard(null);
     };
 
-    const pushMove = (marble: Marble, card: Card, targetMarble: Marble | null, specialAction: number | null) => {
-        // Implement move logic here
-        console.log('Move submitted:', { marble, card, targetMarble, specialAction });
+    const pushMove = (marble: Marble, card: Card, specification: MoveSpecification, targetMarble: Marble | null) => {
+        // Create the move object
+        const move = createMove(handState.userName, card, marble, targetMarble, specification);
+
+        // Log the move (for debugging purposes)
+        console.log('Move submitted:', move);
+
         // Update game state based on the move
         // For now, we'll just remove the card from the player's hand
         setHandState(prevState => ({
             ...prevState,
             hand: prevState.hand.filter(c => c.value !== card.value || c.suit !== card.suit)
         }));
+
+        // Close the confirmation dialog
+        handleConfirmationClose();
+
         // In a real game, you'd send this move to the server and update the game state accordingly
+        // For example:
+        // sendMoveToServer(move).then(updatedGameState => {
+        //     setGameState(updatedGameState);
+        // });
     };
 
     return (

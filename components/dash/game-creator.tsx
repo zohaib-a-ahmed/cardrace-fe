@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     Dialog,
     DialogContent,
@@ -13,15 +14,42 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '@radix-ui/react-label';
 import { Icons } from '../icons';
+import api from '@/lib/api';
+import axios from 'axios';
 
 export function CreateGame() {
     const [roomName, setRoomName] = useState('My Room');
     const [numPlayers, setNumPlayers] = useState(4);
+    const [gameId, setGameId] = useState("");
+    const [error, setError] = useState<string | null>(null);
 
-    const handleCreateGame = () => {
-        console.log('Creating game:', { roomName, numPlayers });
-        // Add your game creation logic here
-    };
+    const router = useRouter();
+
+    const handleCreateGame = useCallback(async () => {
+        try {
+            const response = await api.post<string>('/games/create', null, {
+                params: {
+                    gameName: roomName,
+                    numPlayers: numPlayers
+                }
+            });
+            const newGameId = response.data;
+            setGameId(newGameId);
+            console.log(`/game/${newGameId}`);
+            router.push(`/game/${newGameId}`);
+        } catch (error) {
+            console.error('Error creating game:', error);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    // Handle unauthorized error
+                } else {
+                    setError('Failed to create game. Please try again.');
+                }
+            } else {
+                setError('An unexpected error occurred. Please try again.');
+            }
+        }
+    }, [roomName, numPlayers, router]);
 
     return (
         <Dialog>

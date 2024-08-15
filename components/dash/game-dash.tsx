@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Icons } from '../icons';
 import { cn } from "@/lib/utils";
 import { CreateGame } from './game-creator';
+import api from '@/lib/api';
+import axios from 'axios';
 
 export default function GameDash() {
     const [gameCode, setGameCode] = useState('');
@@ -23,7 +25,6 @@ export default function GameDash() {
         setError('');
 
         try {
-            // Placeholder for game validation API call
             const isValid = await checkGameValidity(gameCode);
 
             if (isValid) {
@@ -39,13 +40,26 @@ export default function GameDash() {
         }
     };
 
-    // Placeholder function for game validity check
-    const checkGameValidity = async (code : string) => {
-        // TODO: Implement actual API call to check game validity
-        // This is a placeholder that always returns true
-        return new Promise((resolve) => {
-            setTimeout(() => resolve(true), 1000);
-        });
+    const checkGameValidity = async (code: string): Promise<boolean> => {
+        try {
+            const response = await api.get<boolean>(`/games/available/${code}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error checking game validity:', error);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 404) {
+                    // Game not found
+                    return false;
+                } else if (error.response?.status === 401) {
+                    setError('Unauthorized access. Please log in and try again.');
+                } else {
+                    setError('Failed to validate game ID. Please try again.');
+                }
+            } else {
+                setError('An unexpected error occurred. Please try again.');
+            }
+            return false;
+        }
     };
 
     return (

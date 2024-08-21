@@ -4,7 +4,7 @@ import {
     CardContent,
 } from "@/components/ui/card"
 import { Icons } from '../icons';
-import { cn } from "@/lib/utils"
+import { cn, getDisplayValue } from "@/lib/utils"
 import { LucideIcon } from 'lucide-react';
 import { Card as CardType, CardSuit, CardValue } from '@/lib/types';
 
@@ -13,23 +13,23 @@ interface PlayingCardProps {
 }
 
 export default function PlayingCard({ card }: PlayingCardProps) {
-    const { value, suit } = card;
-    const isRed = suit === 'heart' || suit === 'diamond';
-    const isJoker = suit === 'joker';
+    const { cardValue, cardSuit } = card;
+    const isRed = cardSuit === CardSuit.HEARTS || cardSuit === CardSuit.DIAMONDS;
+    const isJoker = cardSuit === CardSuit.JOKER;
 
     const getSuitIcon = (): LucideIcon => {
-        switch (suit) {
-            case 'spade': return Icons.spade;
-            case 'heart': return Icons.heart;
-            case 'diamond': return Icons.diamond;
-            case 'club': return Icons.club;
-            case 'joker': return Icons.joker;
+        switch (cardSuit) {
+            case CardSuit.SPADES: return Icons.spade;
+            case CardSuit.HEARTS: return Icons.heart;
+            case CardSuit.DIAMONDS: return Icons.diamond;
+            case CardSuit.CLUBS: return Icons.club;
+            case CardSuit.JOKER: return Icons.joker;
         }
     };
 
     const renderCardContent = () => {
         const SuitIcon = getSuitIcon();
-        const displayValue = isJoker ? 'J' : value;
+        const displayValue = isJoker ? 'J' : getDisplayValue(cardValue);
 
         return (
             <>
@@ -42,7 +42,7 @@ export default function PlayingCard({ card }: PlayingCardProps) {
                         <div className="text-[10px] sm:text-sm md:text-base font-bold">Joker</div>
                     ) : (
                         <div className="text-lg sm:text-2xl md:text-3xl font-bold">
-                            {value}
+                            {displayValue}
                         </div>
                     )}
                 </div>

@@ -1,95 +1,134 @@
 'use client'
-import React, { useState, useEffect } from 'react';
-import { exampleGameState, exampleHandState } from '@/lib/example';
-import { GameState, HandState, Marble, Card, MoveSpecification } from '@/lib/types';
-import PlayingHand from '@/components/game/playing-hand';
-import MoveConfirmation from '@/components/game/move-confirm';
-import { createMove } from '@/lib/utils'; // Assuming you've created this utility function
+import React, { useState, useEffect, useRef } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { useRouter } from 'next/navigation';
+import { EarlyTerminationDTO, WaitingGameStateDTO, SpecificGameStateDTO, GameStatus, MoveDTO } from '@/lib/types';
+import { Lobby, DisconnectAlert} from '@/components/game/lobby';
+import GameDisplay from '@/components/game/game-display';
+import { error } from 'console';
 
-export default function GameRoom() {
-    const [gameState, setGameState] = useState<GameState>(exampleGameState);
-    const [handState, setHandState] = useState<HandState>(exampleHandState);
-    const [selectedMarble, setSelectedMarble] = useState<Marble | null>(null);
-    const [selectedCard, setSelectedCard] = useState<Card | null>(null);
-    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+type GameState = EarlyTerminationDTO | WaitingGameStateDTO | SpecificGameStateDTO;
 
-    const currentPlayer = gameState.players.find(player => player === gameState.currentTurn);
-    const isPlayerTurn = currentPlayer === handState.userName;
+function isEarlyTerminationState(state: GameState): state is EarlyTerminationDTO {
+    return state.status === GameStatus.TERMINATED;
+}
 
-    const handleSubmit = (marble: Marble, card: Card) => {
-        setSelectedMarble(marble);
-        setSelectedCard(card);
-        console.log(marble, card);
-        setIsConfirmationOpen(true);
-    };
+function isWaitingGameState(state: GameState): state is WaitingGameStateDTO {
+    return state.status === GameStatus.WAITING;
+}
 
-    const handleConfirmationClose = () => {
-        setIsConfirmationOpen(false);
-        setSelectedMarble(null);
-        setSelectedCard(null);
-    };
+function isSpecificGameState(state: GameState): state is SpecificGameStateDTO {
+    return state.status === GameStatus.IN_PROGRESS;
+}
 
-    const pushMove = (marble: Marble, card: Card, specification: MoveSpecification, targetMarble: Marble | null) => {
-        // Create the move object
-        const move = createMove(handState.userName, card, marble, targetMarble, specification);
+export default function GamePage({ params }: { params: { gameId: string } }) {
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const [connectionStatus, setConnectionStatus] = useState('Disconnected');
+    const [gameState, setGameState] = useState<GameState | null>(null);
+    const router = useRouter();
+    const socketRef = useRef<Socket | null>(null);
+    const hasConnected = useRef(false);
 
-        // Log the move (for debugging purposes)
-        console.log('Move submitted:', move);
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            router.push('/auth');
+            return;
+        }
 
-        // Update game state based on the move
-        // For now, we'll just remove the card from the player's hand
-        setHandState(prevState => ({
-            ...prevState,
-            hand: prevState.hand.filter(c => c.value !== card.value || c.suit !== card.suit)
-        }));
+        if (hasConnected.current) return;
 
-        // Close the confirmation dialog
-        handleConfirmationClose();
+        const newSocket = io('http://localhost:9092', {
+            autoConnect: false,
+            transports: ['websocket'],
+            query: { token, gameId: params.gameId }
+        });
 
-        // In a real game, you'd send this move to the server and update the game state accordingly
-        // For example:
-        // sendMoveToServer(move).then(updatedGameState => {
-        //     setGameState(updatedGameState);
-        // });
+        const setupSocketListeners = (socket: Socket) => {
+            socket.on('connect', () => {
+                setConnectionStatus('Connected');
+                console.log('Connected to server');
+                hasConnected.current = true;
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Connection error:', error);
+                setConnectionStatus('Connection Error');
+                router.push('/auth');
+            });
+
+            socket.on('disconnect', () => {
+                setConnectionStatus('Disconnected');
+                console.log('Disconnected from server');
+                hasConnected.current = false;
+            });
+
+            socket.on('gameState', (newGameState: GameState) => {
+                console.log('Received game state:', newGameState);
+                setGameState(newGameState);
+            });
+
+            socket.on('moveResult', (error) => {
+                console.log("Illegal move:", error);
+                // notiify user of illegal move
+            })
+        };
+
+        setupSocketListeners(newSocket);
+        newSocket.connect();
+
+        setSocket(newSocket);
+        socketRef.current = newSocket;
+
+        return () => {
+            if (socketRef.current) {
+                console.log('Disconnecting socket');
+                socketRef.current.disconnect();
+                hasConnected.current = false;
+            }
+        };
+    }, [params.gameId, router]);
+
+    const handleMoveSubmit = (move : MoveDTO) => {
+        console.log("submitting move:");
+        console.log(move);
+    }
+
+    const renderGameState = () => {
+        if (!gameState) return null;
+
+        if (isSpecificGameState(gameState)) {
+            console.log("in prog game!")
+            return (
+                <section>
+                    <GameDisplay gameState={gameState} onSubmit={handleMoveSubmit}/>
+                </section>
+            );
+        }
+
+        if (isEarlyTerminationState(gameState)) {
+            console.log("terminated game!")
+            return (
+                <section>
+                    <DisconnectAlert deserter={gameState.deserter}/>
+                </section>
+            );
+        }
+
+        if (isWaitingGameState(gameState)) {
+            console.log("waiting game!")
+            return (
+                <section>
+                    <Lobby gameState={gameState} gameId={params.gameId} />
+                </section>
+            );
+        }
+        return <p>Unknown game state</p>;
     };
 
     return (
-        <div className="p-4 pb-64">
-            <div className="mb-4">
-                <h2 className="text-xl font-bold">Game Status</h2>
-                <p>Current Turn: {currentPlayer ? `${currentPlayer} (${gameState.board.startPositions[currentPlayer]})` : 'Unknown'}</p>
-            </div>
-
-            <div className="mb-4">
-                <h3 className="text-lg font-bold">Players</h3>
-                <ul>
-                    {gameState.players.map((player, index) => (
-                        <li key={index} className={player === gameState.currentTurn ? 'font-bold' : ''}>
-                            {player} (Starting position: {gameState.board.startPositions[player]})
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            <PlayingHand
-                cards={handState.hand}
-                playerColor={handState.color}
-                marbles={handState.marbles}
-                onSubmit={handleSubmit}
-                turn={isPlayerTurn}
-            />
-
-            {selectedMarble && selectedCard && (
-                <MoveConfirmation
-                    isOpen={isConfirmationOpen}
-                    onClose={handleConfirmationClose}
-                    selectedMarble={selectedMarble}
-                    selectedCard={selectedCard}
-                    onFinalSubmit={pushMove}
-                    marbles={handState.marbles}
-                    playerColor={handState.color}
-                />
-            )}
-        </div>
+        <section>
+            {renderGameState()}
+        </section>
     );
 }

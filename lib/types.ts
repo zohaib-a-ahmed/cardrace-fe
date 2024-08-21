@@ -1,81 +1,127 @@
-// Card types
-export type CardSuit = 'spade' | 'heart' | 'diamond' | 'club' | 'joker';
-export type CardValue = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A' | 'joker';
+// types.ts
 
-export interface Card {
-  value: CardValue;
-  suit: CardSuit;
+export enum CardSuit {
+  HEARTS = 'HEARTS',
+  DIAMONDS = 'DIAMONDS',
+  CLUBS = 'CLUBS',
+  SPADES = 'SPADES',
+  JOKER = 'JOKER'
 }
 
-// Marble types
-export type MarbleType = 'A' | 'B' | 'C' | 'D';
-export type PlayerColor = 'red' | 'blue' | 'green' | 'yellow';
+export enum CardValue {
+  TWO = 'TWO',
+  THREE = 'THREE',
+  FOUR = 'FOUR',
+  FIVE = 'FIVE',
+  SIX = 'SIX',
+  SEVEN = 'SEVEN',
+  EIGHT = 'EIGHT',
+  NINE = 'NINE',
+  TEN = 'TEN',
+  JACK = 'JACK',
+  QUEEN = 'QUEEN',
+  KING = 'KING',
+  ACE = 'ACE',
+  JOKER = 'JOKER'
+}
+
+export enum MarbleState {
+  PROTECTED = 'PROTECTED',
+  UNPROTECTED = 'UNPROTECTED'
+}
+
+export enum MarbleType {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D'
+}
+
+export enum Color {
+  RED = 'RED',
+  BLUE = 'BLUE',
+  GREEN = 'GREEN',
+  YELLOW = 'YELLOW',
+  PURPLE = 'PURPLE',
+  ORANGE = 'ORANGE'
+}
+
+export enum GameStatus {
+  WAITING = 'WAITING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETE = 'COMPLETE',
+  TERMINATED = 'TERMINATED'
+}
+
+export interface Card {
+  cardValue: CardValue;
+  cardSuit: CardSuit;
+}
 
 export interface Marble {
-  color: PlayerColor;
-  userName: string;
+  state: MarbleState;
+  color: Color;
   type: MarbleType;
 }
 
-// Board position types
-export interface BoardPosition {
-  position: number;
-  marble: Marble | null;
+export interface Hand {
+  cards: Card[];
+  numCards: number;
 }
 
-export interface SafeZonePosition {
-  position: number;
-  marble: Marble | null;
+export interface Board {
+  spaces: (Marble | null)[];
+  safeZones: Record<Color, (Marble | null)[]>;
+  reserves: Record<Color, Marble[]>;
+  startPositions: Record<Color, number>;
 }
 
-// Game state types
-export type GameStatus = 'waiting' | 'in_progress' | 'completed';
-
-export interface GameState {
-  gameId: string;
+export interface EarlyTerminationDTO {
+  deserter: string;
   status: GameStatus;
-  currentTurn: string;
-  winner: string | null;
+}
+
+export interface WaitingGameStateDTO {
+  status: GameStatus;
+  gameName: string;
   players: string[];
-  board: {
-    mainTrack: BoardPosition[];
-    homes: {
-      [userName: string]: BoardPosition[];
-    };
-    safeZones: {
-      [userName: string]: SafeZonePosition[];
-    };
-    startPositions: {
-      [userName: string]: number;
-    };
-  };
 }
 
-// Hand state type
-export interface HandState {
-  userName: string;
-  color: PlayerColor;
-  hand: Card[];
-  marbles: Marble[];
+export interface SpecificGameStateDTO {
+  gameName: string;
+  board: Board;
+  players: string[];
+  playerColorMap: Record<string, Color>;
+  currentColor: Color;
+  lastCard?: Card;
+  status: GameStatus;
+  winner?: string;
+  player: string;
+  playerHand: Hand;
+  playerColor: Color;
 }
 
-// Utility type for positions
-export type Position = number;
 
-
-// Moves
-export type MoveSpecification = 
-  | { type: 'standard' }
-  | { type: 'forward' | 'backward' } // for 4
-  | { type: 'split', splitValue: number } // for 7
-  | { type: 'swap' } // for J
-  | { type: 'start' | 'move', value: 1 | 11 } // for A
-  | { type: 'joker', actingAs: CardValue, specification?: MoveSpecification };
-
-export interface Move {
-  playerId: string;
+export interface MoveDTO {
+  username: string;
   card: Card;
-  marble: Marble;
-  targetMarble: Marble | null;
-  specification: MoveSpecification;
+  substitute: Card | null; 
+  distances: Map<Marble, number>; 
+  forfeit: boolean;
+}
+
+export function createMoveDTO(
+  username: string,
+  card: Card,
+  substitute: Card | null,
+  distances: Map<Marble, number>,
+  forfeit: boolean
+): MoveDTO {
+  return {
+    username,
+    card,
+    substitute,
+    distances,
+    forfeit
+  };
 }

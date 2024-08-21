@@ -1,81 +1,60 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { GameState, Marble, Move, Card, MoveSpecification } from '@/lib/types';
+import { Board, Card, CardSuit, CardValue, Color, Marble } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getAllMarbles(gameState: GameState): Marble[] {
-    const marbles: Marble[] = [];
+export function retrieveMarbles(board: Board): Marble[] {
+  const allMarbles: Marble[] = [];
 
-    // Extract marbles from main track
-    gameState.board.mainTrack.forEach(position => {
-        if (position.marble) marbles.push(position.marble);
+  board.spaces.forEach(marble => {
+    if (marble) allMarbles.push(marble);
+  });
+  Object.values(board.safeZones).forEach(safeZone => {
+    safeZone.forEach(marble => {
+      if (marble) allMarbles.push(marble);
     });
+  });
+  Object.values(board.reserves).forEach(reserve => {
+    allMarbles.push(...reserve);
+  });
 
-    // Extract marbles from homes
-    Object.values(gameState.board.homes).forEach(home => {
-        home.forEach(position => {
-            if (position.marble) marbles.push(position.marble);
-        });
-    });
-
-    // Extract marbles from safe zones
-    Object.values(gameState.board.safeZones).forEach(safeZone => {
-        safeZone.forEach(position => {
-            if (position.marble) marbles.push(position.marble);
-        });
-    });
-
-    return marbles;
+  return allMarbles;
 }
 
-export function createMove(
-  playerId: string,
-  card: Card,
-  marble: Marble,
-  targetMarble: Marble | null,
-  specification: MoveSpecification
-): Move {
-  let moveSpecification: MoveSpecification;
-  console.log(specification)
-  console.log(card.value)
-
-  switch (card.value) {
-    case '4':
-      moveSpecification = specification || { type: 'forward' };
-      break;
-    case '7':
-      moveSpecification = specification || { type: 'standard' };
-      break;
-    case '10':
-        moveSpecification = specification || { type: 'standard' };
-        break
-    case 'J':
-      if (!targetMarble) {
-        throw new Error(`Target marble is required for ${card.value} card`);
-      }
-      moveSpecification = { type: 'swap' };
-      break;
-    case 'A':
-      moveSpecification = specification || { type: 'move', value: 1 };
-      break;
-    case 'joker':
-      if (!specification || specification.type !== 'joker') {
-        throw new Error('Joker specification is required');
-      }
-      moveSpecification = specification;
-      break;
-    default:
-      moveSpecification = { type: 'standard' };
+export const getDisplayValue = (value: CardValue): string => {
+  switch (value) {
+      case CardValue.TWO: return '2';
+      case CardValue.THREE: return '3';
+      case CardValue.FOUR: return '4';
+      case CardValue.FIVE: return '5';
+      case CardValue.SIX: return '6';
+      case CardValue.SEVEN: return '7';
+      case CardValue.EIGHT: return '8';
+      case CardValue.NINE: return '9';
+      case CardValue.TEN: return '10';
+      case CardValue.ACE: return 'A';
+      case CardValue.KING: return 'K';
+      case CardValue.QUEEN: return 'Q';
+      case CardValue.JACK: return 'J';
+      case CardValue.JOKER: return 'J';
   }
+};
 
-  return {
-    playerId,
-    card,
-    marble: marble,
-    targetMarble: targetMarble,
-    specification: moveSpecification,
-  };
+export const exampleCards: Card[] = [
+  { cardValue: CardValue.FOUR, cardSuit: CardSuit.HEARTS },
+  { cardValue: CardValue.SEVEN, cardSuit: CardSuit.SPADES },
+  { cardValue: CardValue.JACK, cardSuit: CardSuit.CLUBS },
+  { cardValue: CardValue.ACE, cardSuit: CardSuit.DIAMONDS },
+  { cardValue: CardValue.JOKER, cardSuit: CardSuit.JOKER },
+  { cardValue: CardValue.FIVE, cardSuit: CardSuit.HEARTS }
+];
+
+export function filterMarbles(marbles: Marble[], color: Color, match: boolean): Marble[] {
+  return marbles.filter(marble => {
+    const isColorMatch = marble.color === color;
+    return match ? isColorMatch : !isColorMatch;
+  });
 }

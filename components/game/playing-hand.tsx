@@ -4,8 +4,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Button } from "@/components/ui/button";
 import PlayingCard from './playing-card';
 import { Icons } from "../icons";
-import { Card as CardType, Color, CardSuit, CardValue} from '@/lib/types';
+import { Card as CardType, Color, CardSuit} from '@/lib/types';
 import { getDisplayValue } from '@/lib/utils';
+import { ForfeitAlertDialog } from './forfeit-alert';
 
 interface PlayingHandProps {
     cards: CardType[];
@@ -29,16 +30,13 @@ export default function PlayingHand({
 
     const handleSubmit = () => {
         if (selectedCard) {
-            console.log('Submitting card:', selectedCard);
             onSelect(selectedCard);
             setSelectedCard(null);
         }
     };
 
-    const handleForfeit = () => {
-        console.log("forfeit")
-        // open alert to confirm choice
-        //onForfeit(true);
+    const handleForfeit = (choice:boolean) => {
+        onForfeit(choice);
     }
 
     const renderSuitIcon = (suit: CardSuit) => {
@@ -71,9 +69,10 @@ export default function PlayingHand({
                     >
                         Submit
                     </Button>
-                    <Button onClick={handleForfeit} variant='destructive' size='sm' disabled={!turn}>
+                    {/* <Button onClick={handleForfeit} variant='destructive' size='sm' disabled={!turn}>
                         Forfeit
-                    </Button>
+                    </Button> */}
+                    <ForfeitAlertDialog onForfeit={handleForfeit} turn={turn}></ForfeitAlertDialog>
                 </div>
                 <Carousel className="w-full max-w-5xl mx-auto">
                     <CarouselContent className="-ml-4">

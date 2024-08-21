@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, act } from 'react';
 import {
     Drawer,
     DrawerContent,
@@ -14,7 +14,8 @@ import { Marble, Card, MoveDTO, Color, CardSuit, CardValue } from "@/lib/types"
 import { filterMarbles } from '@/lib/utils';
 import MarbleIcon from "./marble"
 import { Icons } from '@/components/icons';
-import { getDisplayValue } from '@/lib/utils';
+import { getDisplayValue, getRealValue } from '@/lib/utils';
+import { Value } from '@radix-ui/react-select';
 
 interface MoveConfirmationProps {
     isOpen: boolean;
@@ -67,19 +68,24 @@ export default function MoveConfirmation({
     const handleMarbleSelect = (marble: Marble, index: number) => {
         const newMarbles = [...moveDetails.marbles];
         newMarbles[index] = marble;
-        setMoveDetails({ ...moveDetails, marbles: newMarbles });
+        const newDistances = [...moveDetails.distances]
+        newDistances[index] = getRealValue(actingCard.cardValue);
+        setMoveDetails({ ...moveDetails, marbles: newMarbles, distances: newDistances });
+        console.log("handling marble selection");
     };
 
     const handleDistanceChange = (distance: number, index: number) => {
         const newDistances = [...moveDetails.distances];
         newDistances[index] = distance;
         setMoveDetails({ ...moveDetails, distances: newDistances });
+        console.log("handling distance details change");
     };
 
     const handleSubstituteSelect = (cardValue: CardValue) => {
         const substitueCard: Card = { cardValue, cardSuit: CardSuit.HEARTS };
         setMoveDetails({ ...moveDetails, substitute: substitueCard });
         setActingCard(substitueCard);
+        console.log("setting acting card as substitute!")
     };
 
     const handleSubmit = () => {
@@ -97,7 +103,7 @@ export default function MoveConfirmation({
             distances: distancesMap,
             forfeit: false
         };
-
+        
         onFinalSubmit(moveDTO);
         onClose();
     };
@@ -232,14 +238,24 @@ interface SevenHandlerProps {
 
 function SevenHandler({ marbles, onMarbleSelect, onDistanceChange, moveDetails }: SevenHandlerProps) {
     const [rows, setRows] = useState(1);
+    const [totalDistance, setTotalDistance] = useState(0);
 
-    const addRow = () => setRows(prev => Math.min(prev + 1, 4));
-    const removeRow = () => setRows(prev => Math.max(prev - 1, 1));
+    useEffect(() => {
+        setTotalDistance(moveDetails.distances.slice(0, rows).reduce((sum, distance) => sum + (distance || 0), 0));
+    }, [rows, moveDetails])
 
-    const totalDistance = moveDetails.distances.reduce((sum, distance) => sum + (distance || 0), 0);
+    const addRow = () => {
+        setRows(prev => Math.min(prev + 1, 4));
+    }
+    const removeRow = () => {
+        setRows(prev => Math.max(prev - 1, 1));
+    }
 
     return (
         <div className="space-y-2">
+            <div className='text-center'>
+                Total MUST sum to 7!
+            </div>
             {[...Array(rows)].map((_, index) => (
                 <div key={index} className="flex items-center space-x-2">
                     <MarbleSelect
@@ -256,7 +272,7 @@ function SevenHandler({ marbles, onMarbleSelect, onDistanceChange, moveDetails }
                 </div>
             ))}
             <div className="flex justify-between items-center">
-                <Button onClick={addRow} disabled={rows >= 7 || totalDistance >= 7}>Add Split</Button>
+                <Button onClick={addRow} disabled={rows >= 4 || totalDistance >= 7}>Add Split</Button>
                 <Button onClick={removeRow} disabled={rows <= 1}>Remove Split</Button>
                 <div>Total: {totalDistance}/7</div>
             </div>

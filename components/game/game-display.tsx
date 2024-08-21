@@ -21,13 +21,22 @@ export default function GameDisplay({
     const allMarbles = retrieveMarbles(gameState.board);
 
     const selectCards = (card: CardType) => {
-        console.log("cards selected")
         setSelectedCard(card);
         setIsConfirmationOpen(true);
     }
 
-    const handleForfeit = (forfeit: boolean) => {
-        // create new move for forfeit and onSubmit it
+    const handleForfeit = (choice: boolean) => {
+        const username = gameState.player;
+        if (choice) {
+            const moveDTO: MoveDTO = {
+                username, 
+                card: null,
+                substitute: null,
+                distances: new Map<Marble, number>(),
+                forfeit: true
+            };    
+            onSubmit(moveDTO);        
+        }
     }
 
     const handleConfirmMove = (move: MoveDTO) => {

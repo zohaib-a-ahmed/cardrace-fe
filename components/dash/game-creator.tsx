@@ -35,7 +35,6 @@ export function CreateGame() {
             });
             const newGameId = response.data;
             setGameId(newGameId);
-            console.log(`/game/${newGameId}`);
             router.push(`/game/${newGameId}`);
         } catch (error) {
             console.error('Error creating game:', error);

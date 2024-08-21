@@ -104,7 +104,7 @@ export interface SpecificGameStateDTO {
 
 export interface MoveDTO {
   username: string;
-  card: Card;
+  card: Card | null;
   substitute: Card | null; 
   distances: Map<Marble, number>; 
   forfeit: boolean;
@@ -112,7 +112,7 @@ export interface MoveDTO {
 
 export function createMoveDTO(
   username: string,
-  card: Card,
+  card: Card | null,
   substitute: Card | null,
   distances: Map<Marble, number>,
   forfeit: boolean

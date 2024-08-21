@@ -47,7 +47,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         const setupSocketListeners = (socket: Socket) => {
             socket.on('connect', () => {
                 setConnectionStatus('Connected');
-                console.log('Connected to server');
                 hasConnected.current = true;
             });
 
@@ -59,7 +58,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
 
             socket.on('disconnect', () => {
                 setConnectionStatus('Disconnected');
-                console.log('Disconnected from server');
                 hasConnected.current = false;
             });
 
@@ -82,7 +80,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
 
         return () => {
             if (socketRef.current) {
-                console.log('Disconnecting socket');
                 socketRef.current.disconnect();
                 hasConnected.current = false;
             }
@@ -98,7 +95,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         if (!gameState) return null;
 
         if (isSpecificGameState(gameState)) {
-            console.log("in prog game!")
             return (
                 <section>
                     <GameDisplay gameState={gameState} onSubmit={handleMoveSubmit}/>
@@ -107,7 +103,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         }
 
         if (isEarlyTerminationState(gameState)) {
-            console.log("terminated game!")
             return (
                 <section>
                     <DisconnectAlert deserter={gameState.deserter}/>
@@ -116,14 +111,13 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         }
 
         if (isWaitingGameState(gameState)) {
-            console.log("waiting game!")
             return (
                 <section>
                     <Lobby gameState={gameState} gameId={params.gameId} />
                 </section>
             );
         }
-        return <p>Unknown game state</p>;
+        return <p>An Error Occured</p>;
     };
 
     return (

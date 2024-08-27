@@ -59,6 +59,7 @@ export interface Card {
 }
 
 export interface Marble {
+  id: number,
   state: MarbleState;
   color: Color;
   type: MarbleType;
@@ -66,10 +67,10 @@ export interface Marble {
 
 export interface Hand {
   cards: Card[];
-  numCards: number;
 }
 
 export interface Board {
+  marbles: Record<number, Marble>
   spaces: (Marble | null)[];
   safeZones: Record<Color, (Marble | null)[]>;
   reserves: Record<Color, Marble[]>;
@@ -106,22 +107,6 @@ export interface MoveDTO {
   username: string;
   card: Card | null;
   substitute: Card | null; 
-  distances: Map<Marble, number>; 
+  distances: [number, number][];
   forfeit: boolean;
-}
-
-export function createMoveDTO(
-  username: string,
-  card: Card | null,
-  substitute: Card | null,
-  distances: Map<Marble, number>,
-  forfeit: boolean
-): MoveDTO {
-  return {
-    username,
-    card,
-    substitute,
-    distances,
-    forfeit
-  };
 }

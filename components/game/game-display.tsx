@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MoveDTO, SpecificGameStateDTO, Marble, Card as CardType } from "@/lib/types";
 import PlayingHand from "./playing-hand";
 import MoveConfirmation from './move-confirm';
@@ -18,7 +18,10 @@ export default function GameDisplay({
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const turn: boolean = gameState.playerColor === gameState.currentColor;
-    const allMarbles = retrieveMarbles(gameState.board);
+
+    useEffect(() => {
+        if (gameState.playerColor === gameState.currentColor && gameState.playerHand.cards.length === 0) { handleForfeit(true); }
+    }, [gameState])
 
     const selectCards = (card: CardType) => {
         setSelectedCard(card);
@@ -32,7 +35,7 @@ export default function GameDisplay({
                 username, 
                 card: null,
                 substitute: null,
-                distances: new Map<Marble, number>(),
+                distances: new Array,
                 forfeit: true
             };    
             onSubmit(moveDTO);        
@@ -56,14 +59,14 @@ export default function GameDisplay({
                 <div className="bg-secondary p-4 rounded-lg max-w-full overflow-auto">
                     <h1 className="text-2xl font-bold">{gameState.gameName}</h1>
                     <pre>{JSON.stringify(gameState.board, null, 2)}</pre>
-                    <pre>{JSON.stringify(gameState.players, null, 2)}</pre>
+                    {/* <pre>{JSON.stringify(gameState.players, null, 2)}</pre> */}
                     <pre>{JSON.stringify(gameState.currentColor, null, 2)}</pre>
                     <pre>{JSON.stringify(gameState.status, null, 2)}</pre>
                 </div>
             </section>
             <section className="mt-auto">
                 <PlayingHand
-                    cards={exampleCards}
+                    cards={gameState.playerHand.cards}
                     playerColor={gameState.playerColor}
                     playerName={gameState.player}
                     onSelect={selectCards}
@@ -75,7 +78,7 @@ export default function GameDisplay({
                         isOpen={isConfirmationOpen}
                         onClose={handleClose}
                         selectedCard={selectedCard}
-                        marbles={allMarbles}
+                        marbles={gameState.board.marbles}
                         onFinalSubmit={handleConfirmMove}
                         playerColor={gameState.playerColor}
                         username={gameState.player}

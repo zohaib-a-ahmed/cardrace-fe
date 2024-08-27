@@ -1,5 +1,4 @@
-'use client'
-import React, { useState, useEffect, act } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Drawer,
     DrawerContent,
@@ -15,13 +14,12 @@ import { filterMarbles } from '@/lib/utils';
 import MarbleIcon from "./marble"
 import { Icons } from '@/components/icons';
 import { getDisplayValue, getRealValue } from '@/lib/utils';
-import { Value } from '@radix-ui/react-select';
 
 interface MoveConfirmationProps {
     isOpen: boolean;
     onClose: () => void;
     selectedCard: Card;
-    marbles: Marble[];
+    marbles: Record<number, Marble>;
     onFinalSubmit: (move: MoveDTO) => void;
     playerColor: Color;
     username: string;
@@ -37,22 +35,27 @@ export default function MoveConfirmation({
     username
 }: MoveConfirmationProps) {
     const [moveDetails, setMoveDetails] = useState<{
-        marbles: Marble[];
+        marbleIds: number[];
         distances: number[];
         substitute: Card | null;
     }>({
-        marbles: [],
+        marbleIds: [],
         distances: [],
         substitute: null
     });
     const [actingCard, setActingCard] = useState<Card>(selectedCard);
-    const playerMarbles = filterMarbles(marbles, playerColor, true);
-    const oppMarbles = filterMarbles(marbles, playerColor, false)
+    const [validity, setValidity] = useState<boolean>(false);
+    const playerMarbleIds = Object.keys(marbles).filter(id => marbles[parseInt(id)].color === playerColor).map(Number);
+    const oppMarbleIds = Object.keys(marbles).filter(id => marbles[parseInt(id)].color !== playerColor).map(Number);
 
     useEffect(() => {
-        setMoveDetails({ marbles: [], distances: [], substitute: null });
+        setMoveDetails({ marbleIds: [], distances: [], substitute: null });
         setActingCard(selectedCard);
     }, [selectedCard]);
+
+    useEffect(() => {
+        setValidity((moveDetails.distances.length === moveDetails.marbleIds.length) && moveDetails.marbleIds.length > 0);
+    }, [moveDetails])
 
     const renderSuitIcon = (suit: CardSuit) => {
         const IconComponent = {
@@ -65,45 +68,48 @@ export default function MoveConfirmation({
         return <IconComponent className="w-4 h-4" />;
     };
 
-    const handleMarbleSelect = (marble: Marble, index: number) => {
-        const newMarbles = [...moveDetails.marbles];
-        newMarbles[index] = marble;
-        const newDistances = [...moveDetails.distances]
-        newDistances[index] = getRealValue(actingCard.cardValue);
-        setMoveDetails({ ...moveDetails, marbles: newMarbles, distances: newDistances });
-        console.log("handling marble selection");
+    const handleMarbleSelect = (marbleId: number, index: number) => {
+        const newMarbleIds = [...moveDetails.marbleIds];
+        newMarbleIds[index] = marbleId;
+
+        const value = getRealValue(actingCard.cardValue);
+        if (value > 0) {
+            const newDistances = [...moveDetails.distances]
+            newDistances[index] = value;
+            setMoveDetails({ ...moveDetails, marbleIds: newMarbleIds, distances: newDistances });
+        } else {
+            setMoveDetails({ ...moveDetails, marbleIds: newMarbleIds});
+        }
     };
 
     const handleDistanceChange = (distance: number, index: number) => {
         const newDistances = [...moveDetails.distances];
         newDistances[index] = distance;
         setMoveDetails({ ...moveDetails, distances: newDistances });
-        console.log("handling distance details change");
     };
 
     const handleSubstituteSelect = (cardValue: CardValue) => {
-        const substitueCard: Card = { cardValue, cardSuit: CardSuit.HEARTS };
+        const substitueCard: Card = { cardValue, cardSuit: CardSuit.JOKER };
         setMoveDetails({ ...moveDetails, substitute: substitueCard });
         setActingCard(substitueCard);
-        console.log("setting acting card as substitute!")
     };
 
     const handleSubmit = () => {
-        const distancesMap = new Map<Marble, number>();
-        moveDetails.marbles.forEach((marble, index) => {
-            if (marble && moveDetails.distances[index] !== undefined) {
-                distancesMap.set(marble, moveDetails.distances[index]);
+        const distancesArray: [number, number][] = moveDetails.marbleIds.map((marbleId, index): [number, number] => {
+            if (marbleId !== undefined && moveDetails.distances[index] !== undefined) {
+                return [marbleId, moveDetails.distances[index]];
             }
-        });
+            return [0, 0]; 
+        })
 
         const moveDTO: MoveDTO = {
             username,
             card: selectedCard,
             substitute: moveDetails.substitute,
-            distances: distancesMap,
+            distances: distancesArray,
             forfeit: false
         };
-        
+
         onFinalSubmit(moveDTO);
         onClose();
     };
@@ -130,7 +136,7 @@ export default function MoveConfirmation({
             case CardValue.ACE:
                 return (
                     <>
-                        <MarbleSelect marbles={playerMarbles} onSelect={(marble) => handleMarbleSelect(marble, 0)} />
+                        <MarbleSelect marbleIds={playerMarbleIds} marbles={marbles} onSelect={(marbleId) => handleMarbleSelect(marbleId, 0)} />
                         <Select onValueChange={(value) => handleDistanceChange(parseInt(value), 0)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select distance" />
@@ -145,14 +151,14 @@ export default function MoveConfirmation({
             case CardValue.JACK:
                 return (
                     <>
-                        <MarbleSelect marbles={playerMarbles} onSelect={(marble) => handleMarbleSelect(marble, 0)} label="Select your marble" />
-                        <MarbleSelect marbles={oppMarbles} onSelect={(marble) => handleMarbleSelect(marble, 1)} label="Select opponent's marble" />
+                        <MarbleSelect marbleIds={playerMarbleIds} marbles={marbles} onSelect={(marbleId) => handleMarbleSelect(marbleId, 0)} label="Select your marble" />
+                        <MarbleSelect marbleIds={oppMarbleIds} marbles={marbles} onSelect={(marbleId) => handleMarbleSelect(marbleId, 1)} label="Select opponent's marble" />
                     </>
                 );
             case CardValue.FOUR:
                 return (
                     <>
-                        <MarbleSelect marbles={playerMarbles} onSelect={(marble) => handleMarbleSelect(marble, 0)} />
+                        <MarbleSelect marbleIds={playerMarbleIds} marbles={marbles} onSelect={(marbleId) => handleMarbleSelect(marbleId, 0)} />
                         <Select onValueChange={(value) => handleDistanceChange(parseInt(value), 0)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select distance" />
@@ -167,7 +173,8 @@ export default function MoveConfirmation({
             case CardValue.SEVEN:
                 return (
                     <SevenHandler
-                        marbles={playerMarbles}
+                        marbleIds={playerMarbleIds}
+                        marbles={marbles}
                         onMarbleSelect={handleMarbleSelect}
                         onDistanceChange={handleDistanceChange}
                         moveDetails={moveDetails}
@@ -176,7 +183,7 @@ export default function MoveConfirmation({
             default:
                 return (
                     <>
-                        <MarbleSelect marbles={playerMarbles} onSelect={(marble) => handleMarbleSelect(marble, 0)} />
+                        <MarbleSelect marbleIds={playerMarbleIds} marbles={marbles} onSelect={(marbleId) => handleMarbleSelect(marbleId, 0)} />
                     </>
                 );
         }
@@ -197,8 +204,7 @@ export default function MoveConfirmation({
                         {renderMoveOptions()}
                     </div>
                     <DrawerFooter>
-                        <Button onClick={handleSubmit}>Confirm Move</Button>
-                        {/* <Button variant="outline" onClick={onClose}>Cancel</Button> */}
+                        <Button onClick={handleSubmit} disabled={!validity}>Confirm Move</Button>
                     </DrawerFooter>
                 </div>
             </DrawerContent>
@@ -207,21 +213,22 @@ export default function MoveConfirmation({
 }
 
 interface MarbleSelectProps {
-    marbles: Marble[];
-    onSelect: (marble: Marble) => void;
+    marbleIds: number[];
+    marbles: Record<number, Marble>;
+    onSelect: (marbleId: number) => void;
     label?: string;
 }
 
-function MarbleSelect({ marbles, onSelect, label = "Select marble" }: MarbleSelectProps) {
+function MarbleSelect({ marbleIds, marbles, onSelect, label = "Select marble" }: MarbleSelectProps) {
     return (
-        <Select onValueChange={(value) => onSelect(JSON.parse(value))}>
+        <Select onValueChange={(value) => onSelect(parseInt(value))}>
             <SelectTrigger>
                 <SelectValue placeholder={label} />
             </SelectTrigger>
             <SelectContent>
-                {marbles.map((marble) => (
-                    <SelectItem key={`${marble.type}-${marble.color}`} value={JSON.stringify(marble)}>
-                        <MarbleIcon marble={marble} />
+                {marbleIds.map((id) => (
+                    <SelectItem key={id} value={id.toString()}>
+                        <MarbleIcon marble={marbles[id]} />
                     </SelectItem>
                 ))}
             </SelectContent>
@@ -230,13 +237,14 @@ function MarbleSelect({ marbles, onSelect, label = "Select marble" }: MarbleSele
 }
 
 interface SevenHandlerProps {
-    marbles: Marble[];
-    onMarbleSelect: (marble: Marble, index: number) => void;
+    marbleIds: number[];
+    marbles: Record<number, Marble>;
+    onMarbleSelect: (marbleId: number, index: number) => void;
     onDistanceChange: (distance: number, index: number) => void;
-    moveDetails: { marbles: Marble[]; distances: number[] };
+    moveDetails: { marbleIds: number[]; distances: number[] };
 }
 
-function SevenHandler({ marbles, onMarbleSelect, onDistanceChange, moveDetails }: SevenHandlerProps) {
+function SevenHandler({ marbleIds, marbles, onMarbleSelect, onDistanceChange, moveDetails }: SevenHandlerProps) {
     const [rows, setRows] = useState(1);
     const [totalDistance, setTotalDistance] = useState(0);
 
@@ -259,8 +267,9 @@ function SevenHandler({ marbles, onMarbleSelect, onDistanceChange, moveDetails }
             {[...Array(rows)].map((_, index) => (
                 <div key={index} className="flex items-center space-x-2">
                     <MarbleSelect
+                        marbleIds={marbleIds}
                         marbles={marbles}
-                        onSelect={(marble) => onMarbleSelect(marble, index)}
+                        onSelect={(marbleId) => onMarbleSelect(marbleId, index)}
                     />
                     <Input
                         type="number"

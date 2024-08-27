@@ -86,9 +86,14 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         };
     }, [params.gameId, router]);
 
+    useEffect(() => {
+        
+    }, [gameState])
+
     const handleMoveSubmit = (move : MoveDTO) => {
-        console.log("submitting move:");
-        console.log(move);
+        console.log(JSON.stringify(move));
+        if (socket) { socket.emit("move", move); }
+        else { console.log("no socket???")}
     }
 
     const renderGameState = () => {

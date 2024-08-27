@@ -47,17 +47,17 @@ export const getRealValue = (value: CardValue): number => {
   switch (value) {
       case CardValue.TWO: return 2;
       case CardValue.THREE: return 3;
-      case CardValue.FOUR: return 4;
+      case CardValue.FOUR: return 0;
       case CardValue.FIVE: return 5;
       case CardValue.SIX: return 6;
-      case CardValue.SEVEN: return 7;
+      case CardValue.SEVEN: return 0;
       case CardValue.EIGHT: return 8;
       case CardValue.NINE: return 9;
       case CardValue.TEN: return 10;
-      case CardValue.ACE: return 11;
+      case CardValue.ACE: return 0;
       case CardValue.KING: return 13;
       case CardValue.QUEEN: return 12;
-      case CardValue.JACK: return 0;
+      case CardValue.JACK: return 1;
       case CardValue.JOKER: return 0;
   }
 };

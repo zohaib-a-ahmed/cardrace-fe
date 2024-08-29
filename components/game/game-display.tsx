@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { MoveDTO, SpecificGameStateDTO, Marble, Card as CardType } from "@/lib/types";
 import PlayingHand from "./playing-hand";
 import MoveConfirmation from './move-confirm';
-import { retrieveMarbles } from '@/lib/utils';
-import { exampleCards } from '@/lib/utils';
+import GameBoard from './game-board';
 
 interface GameDisplayProps {
     gameState: SpecificGameStateDTO;
@@ -55,14 +54,17 @@ export default function GameDisplay({
 
     return (
         <div className="h-screen flex flex-col">
-            <section className="flex-grow p-4 overflow-auto pb-64">
-                <div className="bg-secondary p-4 rounded-lg max-w-full overflow-auto">
-                    <h1 className="text-2xl font-bold">{gameState.gameName}</h1>
-                    <pre>{JSON.stringify(gameState.board, null, 2)}</pre>
-                    {/* <pre>{JSON.stringify(gameState.players, null, 2)}</pre> */}
-                    <pre>{JSON.stringify(gameState.currentColor, null, 2)}</pre>
-                    <pre>{JSON.stringify(gameState.status, null, 2)}</pre>
-                </div>
+            <section className="flex-grow overflow-auto overflow-x">
+                    {/* {JSON.stringify(gameState)} */}
+                    <GameBoard
+                    player={gameState.player}
+                    board={gameState.board}
+                    gameName={gameState.gameName}
+                    players={gameState.players}
+                    playerColorMap={gameState.playerColorMap}
+                    currentColor={gameState.currentColor}
+                    lastCard={gameState.lastCard}
+                    />
             </section>
             <section className="mt-auto">
                 <PlayingHand

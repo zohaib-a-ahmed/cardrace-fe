@@ -86,10 +86,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         };
     }, [params.gameId, router]);
 
-    useEffect(() => {
-        
-    }, [gameState])
-
     const handleMoveSubmit = (move : MoveDTO) => {
         console.log(JSON.stringify(move));
         if (socket) { socket.emit("move", move); }
@@ -122,7 +118,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
                 </section>
             );
         }
-        return <p>An Error Occured</p>;
+        return <p>Something Else occurred!</p>;
     };
 
     return (

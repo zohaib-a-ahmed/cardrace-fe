@@ -71,9 +71,9 @@ export interface Hand {
 
 export interface Board {
   marbles: Record<number, Marble>
-  spaces: (Marble | null)[];
-  safeZones: Record<Color, (Marble | null)[]>;
-  reserves: Record<Color, Marble[]>;
+  spaces: (number | null)[];
+  safeZones: Record<Color, (number | null)[]>;
+  reserves: Record<Color, number[]>;
   startPositions: Record<Color, number>;
 }
 
@@ -109,4 +109,13 @@ export interface MoveDTO {
   substitute: Card | null; 
   distances: [number, number][];
   forfeit: boolean;
+}
+
+export interface BoardSection {
+  spaces: (number | null)[];
+  marbles: Record<number, Marble>;
+  safeZone: (number | null)[];
+  reserve: number[];
+  player: string;
+  color: Color;
 }

@@ -12,12 +12,9 @@ import {
   Club,
   Diamond,
   VenetianMask,
-  ShipWheel,
-  Mountain,
-  Sword,
-  Plane,
   Plus,
   Minus,
+  CircleHelp,
   type Icon as LucideIcon,
 } from "lucide-react"
 export type Icon = typeof LucideIcon
@@ -35,12 +32,9 @@ export const Icons = {
   heart: Heart,
   club: Club,
   joker: VenetianMask,
-  A: ShipWheel,
-  B: Mountain,
-  C: Sword,
-  D: Plane,
   plus : Plus,
   minus : Minus,
+  help: CircleHelp,
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <path

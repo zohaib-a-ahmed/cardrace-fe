@@ -3,9 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useRouter } from 'next/navigation';
 import { EarlyTerminationDTO, WaitingGameStateDTO, SpecificGameStateDTO, GameStatus, MoveDTO } from '@/lib/types';
-import { Lobby, DisconnectAlert} from '@/components/game/lobby';
+import { Lobby, DisconnectAlert, WinDialog } from '@/components/game/lobby';
 import GameDisplay from '@/components/game/game-display';
-import { error } from 'console';
+import InvalidMoveAlert from '@/components/game/invalid-move';
 
 type GameState = EarlyTerminationDTO | WaitingGameStateDTO | SpecificGameStateDTO;
 
@@ -21,9 +21,14 @@ function isSpecificGameState(state: GameState): state is SpecificGameStateDTO {
     return state.status === GameStatus.IN_PROGRESS;
 }
 
+function isCompleteGameState(state: GameState): state is SpecificGameStateDTO {
+    return state.status === GameStatus.COMPLETE;
+}
+
 export default function GamePage({ params }: { params: { gameId: string } }) {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [connectionStatus, setConnectionStatus] = useState('Disconnected');
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [gameState, setGameState] = useState<GameState | null>(null);
     const router = useRouter();
     const socketRef = useRef<Socket | null>(null);
@@ -46,18 +51,15 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
 
         const setupSocketListeners = (socket: Socket) => {
             socket.on('connect', () => {
-                setConnectionStatus('Connected');
                 hasConnected.current = true;
             });
 
             socket.on('connect_error', (error) => {
                 console.error('Connection error:', error);
-                setConnectionStatus('Connection Error');
                 router.push('/auth');
             });
 
             socket.on('disconnect', () => {
-                setConnectionStatus('Disconnected');
                 hasConnected.current = false;
             });
 
@@ -68,8 +70,9 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
 
             socket.on('moveResult', (error) => {
                 console.log("Illegal move:", error);
-                // notiify user of illegal move
-            })
+                setErrorMessage(error);
+                setIsAlertOpen(true);
+            });
         };
 
         setupSocketListeners(newSocket);
@@ -86,19 +89,38 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         };
     }, [params.gameId, router]);
 
-    const handleMoveSubmit = (move : MoveDTO) => {
+    const handleMoveSubmit = (move: MoveDTO) => {
         console.log(JSON.stringify(move));
         if (socket) { socket.emit("move", move); }
-        else { console.log("no socket???")}
+        else { console.log("no socket???") }
     }
+
+    const handleCloseAlert = () => {
+        setIsAlertOpen(false);
+    };
 
     const renderGameState = () => {
         if (!gameState) return null;
 
+
+        if (isCompleteGameState(gameState)) {
+            return (
+                <section>
+                    <WinDialog winner={gameState.winner} />
+                    <GameDisplay gameState={gameState} onSubmit={handleMoveSubmit} />
+                </section>
+            )
+        }
+
         if (isSpecificGameState(gameState)) {
             return (
                 <section>
-                    <GameDisplay gameState={gameState} onSubmit={handleMoveSubmit}/>
+                    <GameDisplay gameState={gameState} onSubmit={handleMoveSubmit} />
+                    <InvalidMoveAlert
+                        isOpen={isAlertOpen}
+                        onClose={handleCloseAlert}
+                        errorMessage={errorMessage}
+                    />
                 </section>
             );
         }
@@ -106,7 +128,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
         if (isEarlyTerminationState(gameState)) {
             return (
                 <section>
-                    <DisconnectAlert deserter={gameState.deserter}/>
+                    <DisconnectAlert deserter={gameState.deserter} />
                 </section>
             );
         }
@@ -118,7 +140,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
                 </section>
             );
         }
-        return <p>Something Else occurred!</p>;
+        return <p>An Unexpected Error occurred.</p>;
     };
 
     return (

@@ -24,8 +24,8 @@ export function Lobby({ gameState, gameId }: LobbyProps) {
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="col-span-1 font-semibold">Game ID:</span>
             <span className="col-span-2">{gameId}</span>
-            <Button 
-              className="col-span-1" 
+            <Button
+              className="col-span-1"
               onClick={() => navigator.clipboard.writeText(gameId)}
               size="sm"
             >
@@ -47,31 +47,64 @@ export function Lobby({ gameState, gameId }: LobbyProps) {
 }
 
 interface DisconnectAlertProps {
-    deserter: string;
-  }
-  
-  export function DisconnectAlert({ deserter }: DisconnectAlertProps) {
-    const router = useRouter();
-  
-    const handleReturnToDashboard = () => {
-      router.push('/dash');
-    };
-  
-    return (
-      <Dialog open={true}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Game Terminated</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p>{deserter} has disconnected.</p>
+  deserter: string;
+}
+
+export function DisconnectAlert({ deserter }: DisconnectAlertProps) {
+  const router = useRouter();
+
+  const handleReturnToDashboard = () => {
+    router.push('/dash');
+  };
+
+  return (
+    <Dialog open={true}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Game Terminated</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p>{deserter} has disconnected.</p>
+        </div>
+        <DialogFooter>
+          <Button onClick={handleReturnToDashboard}>
+            Dashboard
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+interface WinDialogProps {
+  winner: string | undefined;
+}
+
+export const WinDialog: React.FC<WinDialogProps> = ({ winner }) => {
+  const router = useRouter();
+
+  const handleReturnToDashboard = () => {
+    router.push('/dash');
+  };
+
+  return (
+    <Dialog open={true} >
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Game Over!</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="text-center text-2xl font-bold">
+            {winner} has won the game!
           </div>
-          <DialogFooter>
-            <Button onClick={handleReturnToDashboard}>
-              Dashboard
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+        </div>
+        <DialogFooter>
+          <Button onClick={handleReturnToDashboard}>
+            Dashboard
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};

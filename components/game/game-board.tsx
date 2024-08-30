@@ -20,7 +20,7 @@ interface GameBoardProps {
 const BOARD_COLOR = 0xA1662F;
 
 const RADIUS_MULTIPLIER: Record<number, number> = {
-    2: 200,
+    2: 225,
     3: 200,
     4: 180,
     5: 165,
@@ -93,9 +93,10 @@ export default function GameBoard({
 
     const colorDesignations = players.map((playerName, index) => {
         const playerColor = playerColorMap[playerName];
+        const isTurn = playerColor === currentColor;
         const playerColorStyle = new TextStyle({
             fontFamily: 'Arial',
-            fontSize: 14,
+            fontSize: isTurn ? 18 : 14,
             fill: getColorCode(playerColor),
         });
         return (
@@ -119,7 +120,7 @@ export default function GameBoard({
             <Container x={0} y={0}>
                 <Text text={`Game: ${gameName}`} x={10} y={10} style={textStyle} />
                 <Text text={`Previous Play: ${lastCard ? lastCard.cardValue : 'N/A'}`} x={10} y={40} style={textStyle} />
-                <Text text={`Current Turn: ${currentColor}`} x={10} y={70} style={coloredTextStyle} />
+                {/* <Text text={`Current Turn: ${currentColor}`} x={10} y={70} style={coloredTextStyle} /> */}
             </Container>
             <Container x={window.innerWidth -30} y={0}>
                 {colorDesignations}

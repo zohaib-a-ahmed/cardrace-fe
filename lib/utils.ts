@@ -134,3 +134,18 @@ export function filterMarblesInPlay(
     Object.entries(marbles).filter(([id]) => presentMarbleIds.has(Number(id)))
   );
 }
+
+export function filterMarblesPlayable(
+  spaces: (number | null)[],
+  marbles: Record<number, Marble>,
+  reserve: number[]
+): Record<number, Marble> {
+  const presentMarbleIds = new Set([
+    ...spaces.filter((id): id is number => id !== null),
+    ...reserve
+  ]);
+  
+  return Object.fromEntries(
+    Object.entries(marbles).filter(([id]) => presentMarbleIds.has(Number(id)))
+  );
+}

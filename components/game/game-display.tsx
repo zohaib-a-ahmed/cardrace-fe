@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { MoveDTO, SpecificGameStateDTO, Marble, Card as CardType, CardValue } from "@/lib/types";
-import { filterMarblesInPlay } from '@/lib/utils';
+import { filterMarblesInPlay, filterMarblesPlayable } from '@/lib/utils';
 import PlayingHand from "./playing-hand";
 import MoveConfirmation from './move-confirm';
 import GameBoard from './game-board';
@@ -20,6 +20,7 @@ export default function GameDisplay({
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const turn: boolean = gameState.playerColor === gameState.currentColor;
     const marblesInPlay = filterMarblesInPlay(gameState.board.spaces, gameState.board.marbles);
+    const marblesPlayable = filterMarblesPlayable(gameState.board.spaces, gameState.board.marbles, gameState.board.reserves[gameState.playerColor])
 
     useEffect(() => {
         if (gameState.playerColor === gameState.currentColor && gameState.playerHand.cards.length === 0) { handleForfeit(true); }
@@ -27,11 +28,13 @@ export default function GameDisplay({
 
     const selectCards = (card: CardType) => {
         setSelectedCard(card);
-        if (!(card.cardValue == CardValue.ACE) && !(card.cardValue == CardValue.KING) && !(card.cardValue == CardValue.JOKER)) {
-            setMarbles(marblesInPlay);
-        } else { setMarbles(gameState.board.marbles); }
+        setMarbles(
+          [CardValue.ACE, CardValue.KING, CardValue.JOKER].includes(card.cardValue)
+            ? marblesPlayable
+            : marblesInPlay
+        );
         setIsConfirmationOpen(true);
-    }
+      };
 
     const handleForfeit = (choice: boolean) => {
         const username = gameState.player;

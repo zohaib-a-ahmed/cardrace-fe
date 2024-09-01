@@ -48,7 +48,7 @@ const AuthCard: React.FC<AuthCardProps> = ({ onSuccess }) => {
     } catch (error) {
       form.reset();
       if (axios.isAxiosError(error) && error.response) {
-        setError(error.response.data.message || 'A different error occured??');
+        setError(error.response.data.message || 'An error occurred. Have you made an account?');
       } else {
         setError('An unexpected error occurred. Please try again.');
       }

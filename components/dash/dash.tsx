@@ -73,7 +73,7 @@ const Dash: React.FC<DashProps> = ({ username, wins, turns, gamesPlayed }) => {
           </BlurFade>
           <BlurFade delay={.25 * 4} inView className='pt-8 sm:pt-10'>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-neutral-100 text-right">
-              Let's <span className="text-red-600 dark:text-red-400">play.</span>
+              Let's <span className="text-red-600 dark:text-red-400">race.</span>
             </h1>
           </BlurFade>
         </div>

@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { MoveDTO, SpecificGameStateDTO, Marble, Card as CardType } from "@/lib/types";
+import { MoveDTO, SpecificGameStateDTO, Marble, Card as CardType, CardValue } from "@/lib/types";
+import { filterMarblesInPlay } from '@/lib/utils';
 import PlayingHand from "./playing-hand";
 import MoveConfirmation from './move-confirm';
 import GameBoard from './game-board';
@@ -15,8 +16,10 @@ export default function GameDisplay({
     onSubmit
 }: GameDisplayProps) {
     const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
+    const [marbles, setMarbles] = useState<Record<number, Marble>>(gameState.board.marbles)
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const turn: boolean = gameState.playerColor === gameState.currentColor;
+    const marblesInPlay = filterMarblesInPlay(gameState.board.spaces, gameState.board.marbles);
 
     useEffect(() => {
         if (gameState.playerColor === gameState.currentColor && gameState.playerHand.cards.length === 0) { handleForfeit(true); }
@@ -24,6 +27,9 @@ export default function GameDisplay({
 
     const selectCards = (card: CardType) => {
         setSelectedCard(card);
+        if (!(card.cardValue == CardValue.ACE) && !(card.cardValue == CardValue.KING) && !(card.cardValue == CardValue.JOKER)) {
+            setMarbles(marblesInPlay);
+        } else { setMarbles(gameState.board.marbles); }
         setIsConfirmationOpen(true);
     }
 
@@ -42,6 +48,7 @@ export default function GameDisplay({
     }
 
     const handleConfirmMove = (move: MoveDTO) => {
+        console.log(move);
         onSubmit(move);
         setSelectedCard(null);
         setIsConfirmationOpen(false);
@@ -80,7 +87,7 @@ export default function GameDisplay({
                         isOpen={isConfirmationOpen}
                         onClose={handleClose}
                         selectedCard={selectedCard}
-                        marbles={gameState.board.marbles}
+                        marbles={marbles}
                         onFinalSubmit={handleConfirmMove}
                         playerColor={gameState.playerColor}
                         username={gameState.player}

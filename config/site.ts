@@ -5,7 +5,7 @@ export const siteConfig = {
   description: "race with cards",
   mainNav: [],
   links: {
-    github: "https://github.com/zohaib-a-ahmed/cardrace-fe/tree/main",
+    github: "https://github.com/zohaib-a-ahmed/cardrace-server",
   },
   rules: {
     sections: [

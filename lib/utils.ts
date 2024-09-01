@@ -123,3 +123,14 @@ export const getColorCode = (color: Color): number => {
       default: return 0x000000;
   }
 };
+
+export function filterMarblesInPlay(
+  spaces: (number | null)[],
+  marbles: Record<number, Marble>
+): Record<number, Marble> {
+  const presentMarbleIds = new Set(spaces.filter((id): id is number => id !== null));
+  
+  return Object.fromEntries(
+    Object.entries(marbles).filter(([id]) => presentMarbleIds.has(Number(id)))
+  );
+}

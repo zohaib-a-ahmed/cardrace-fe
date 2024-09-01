@@ -37,7 +37,7 @@ const SCALE_BREAKPOINTS = [
 const PLAYER_COUNT_SCALE: Record<number, number> = {
     2: 1.2,
     3: 1,
-    4: 0.9,
+    4: 0.75,
     5: 0.7,
     6: 0.65
 };
@@ -119,7 +119,7 @@ export default function GameBoard({
         >
             <Container x={0} y={0}>
                 <Text text={`Game: ${gameName}`} x={10} y={10} style={textStyle} />
-                <Text text={`Previous Play: ${lastCard ? lastCard.cardValue : 'N/A'}`} x={10} y={40} style={textStyle} />
+                <Text text={`Previous Play: ${lastCard ? lastCard.cardValue : 'FORFEIT'}`} x={10} y={40} style={textStyle} />
                 {/* <Text text={`Current Turn: ${currentColor}`} x={10} y={70} style={coloredTextStyle} /> */}
             </Container>
             <Container x={window.innerWidth -30} y={0}>

@@ -64,12 +64,10 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
             });
 
             socket.on('gameState', (newGameState: GameState) => {
-                console.log('Received game state:', newGameState);
                 setGameState(newGameState);
             });
 
             socket.on('moveResult', (error) => {
-                console.log("Illegal move:", error);
                 setErrorMessage(error);
                 setIsAlertOpen(true);
             });
@@ -90,9 +88,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
     }, [params.gameId, router]);
 
     const handleMoveSubmit = (move: MoveDTO) => {
-        console.log(JSON.stringify(move));
         if (socket) { socket.emit("move", move); }
-        else { console.log("no socket???") }
     }
 
     const handleCloseAlert = () => {

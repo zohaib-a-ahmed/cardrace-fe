@@ -48,7 +48,6 @@ export default function GameDisplay({
     }
 
     const handleConfirmMove = (move: MoveDTO) => {
-        console.log(move);
         onSubmit(move);
         setSelectedCard(null);
         setIsConfirmationOpen(false);

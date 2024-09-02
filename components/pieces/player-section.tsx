@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Stage, Container, Graphics } from '@pixi/react';
+import { Stage, Container, Graphics, Text } from '@pixi/react';
 import { Graphics as PixiGraphics, Text as PixiText, TextStyle } from 'pixi.js';
 import { BoardSection, Color, Marble } from "@/lib/types";
 import { getColorCode } from '@/lib/utils';
@@ -32,39 +32,29 @@ const Spot: React.FC<SpotProps> = ({ x, y, color, marble }) => {
             g.beginFill(getColorCode(marble.color));
             g.drawCircle(0, 0, SPOT_SIZE / 2.5);
             g.endFill();
-
-            if (!textRef.current) {
-                const style = new TextStyle({
-                    fontFamily: 'Arial',
-                    fontWeight: '600',
-                    fontSize: 14,
-                    fill: 0x000000,
-                    align: 'center',
-                });
-
-                textRef.current = new PixiText(marble.type, style);
-                textRef.current.anchor.set(0.5);
-                textRef.current.position.set(0, 0);
-                g.addChild(textRef.current);
-            } else {
-                textRef.current.text = marble.type;
-            }
-        } else if (textRef.current) {
-            g.removeChild(textRef.current);
-            textRef.current.destroy();
-            textRef.current = null;
         }
     }, [color, marble]);
 
-    useEffect(() => {
-        if (graphicsRef.current) {
-            draw(graphicsRef.current);
-        }
-    }, [draw]);
+    const textStyle = new TextStyle({
+        fontFamily: 'Arial',
+        fontWeight: '600',
+        fontSize: 14,
+        fill: 0x000000,
+        align: 'center',
+    });
 
     return (
         <Container x={x} y={y}>
-            <Graphics ref={graphicsRef} draw={draw} />
+            <Graphics draw={draw} />
+            {marble && (
+                <Text
+                    text={marble.type}
+                    anchor={0.5}
+                    x={0}
+                    y={0}
+                    style={textStyle}
+                />
+            )}
         </Container>
     );
 };
@@ -116,7 +106,7 @@ export const PlayerSection: React.FC<PlayerSectionProps> = ({ section }) => {
                     x={SPOT_SIZE * 1.8 - (i * SPOT_SIZE * 0.9)}
                     y={SPOT_SIZE * -0.2 - (i * SPOT_SIZE * 0.9)}
                     color={colorCode}
-                    marble={section.safeZone[i] != null ? section.marbles[section.safeZone[i]] : null}
+                    marble={section.safeZone[i] !== null ? section.marbles[section.safeZone[i]!] : null}
                 />
             ))}
 
@@ -127,7 +117,7 @@ export const PlayerSection: React.FC<PlayerSectionProps> = ({ section }) => {
                     x={spot.x}
                     y={spot.y}
                     color={index === 5 ? START_COLOR : BOARD_SPOT_COLOR}
-                    marble={section.spaces[index] != null ? section.marbles[section.spaces[index]] : null}
+                    marble={section.spaces[index] !== null ? section.marbles[section.spaces[index]!] : null}
                 />
             ))}
         </Container>

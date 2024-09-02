@@ -54,7 +54,7 @@ export default function PlayingHand({
         <Card className="fixed bottom-0 left-0 right-0 p-4 shadow-lg">
             <div className="w-4 h-4 rounded-full absolute top-2 right-2" style={{ backgroundColor: playerColor }}></div>
             <div className="flex flex-col space-y-4 items-center justify-center">
-                <div className="flex justify-end items-center justify-center space-x-2 w-full">
+                <div className="flex items-center justify-center space-x-2 w-full">
                     <div className="flex items-center space-x-2 p-2 bg-secondary rounded-lg">
                         {selectedCard && (
                             <div className="flex items-center space-x-1">

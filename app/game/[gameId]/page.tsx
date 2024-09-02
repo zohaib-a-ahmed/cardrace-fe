@@ -43,7 +43,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
 
         if (hasConnected.current) return;
 
-        const newSocket = io('http://localhost:9092', {
+        const newSocket = io(process.env.NEXT_PUBLIC_API_SOCKET_URL || "fuck", {
             autoConnect: false,
             transports: ['websocket'],
             query: { token, gameId: params.gameId }

@@ -25,7 +25,8 @@ export const siteConfig = {
           "If your marble lands on a space occupied by an opponent's marble, the opponent's marble is eliminated and returned to their reserve. This is true for all but newly activated marbles.",
           "Once a marble reaches its safe zone, it CANNOT be moved or displaced.",
           "Each round, players are randomly dealt a hand of cards depending on the number of players. This is 12 cards for 2-3 players and 6 for 4-6 players. Each round the cards are dealt, the size of the hand cyclically decreases.",
-          "Cards move the distance of the card value for all except the case of face cards and certain numbers."
+          "Cards move the distance of the card value for all except the case of face cards and certain numbers.",
+          "Players can forfeit their hand at their turn until the next deal at any point in the game."
         ]
       },
       {

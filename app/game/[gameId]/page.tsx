@@ -54,10 +54,11 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
                 hasConnected.current = true;
             });
 
-            socket.on('connect_error', (error) => {
-                console.error('Connection error:', error);
-                router.push('/auth');
-            });
+            socket.on("connect_error", (err) => {
+                console.log(err.message);
+                setErrorMessage(err.message);
+                router.push('/dash');
+              });
 
             socket.on('disconnect', () => {
                 hasConnected.current = false;

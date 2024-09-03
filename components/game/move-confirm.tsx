@@ -249,8 +249,8 @@ function SevenHandler({ marbleIds, marbles, onMarbleSelect, onDistanceChange, mo
     const [totalDistance, setTotalDistance] = useState(0);
 
     useEffect(() => {
-        setTotalDistance(moveDetails.distances.slice(0, rows).reduce((sum, distance) => sum + (distance || 0), 0));
-    }, [rows, moveDetails])
+        setTotalDistance(moveDetails.distances.reduce((sum, distance) => sum + (distance || 0), 0));
+    }, [moveDetails])
 
     const addRow = () => {
         setRows(prev => Math.min(prev + 1, 4));
@@ -259,11 +259,10 @@ function SevenHandler({ marbleIds, marbles, onMarbleSelect, onDistanceChange, mo
         setRows(prev => Math.max(prev - 1, 1));
     }
 
+    const distances = [1, 2, 3, 4, 5, 6, 7];
+
     return (
         <div className="space-y-2">
-            <div className='text-center'>
-                Total MUST sum to 7!
-            </div>
             {[...Array(rows)].map((_, index) => (
                 <div key={index} className="flex items-center space-x-2">
                     <MarbleSelect
@@ -271,17 +270,25 @@ function SevenHandler({ marbleIds, marbles, onMarbleSelect, onDistanceChange, mo
                         marbles={marbles}
                         onSelect={(marbleId) => onMarbleSelect(marbleId, index)}
                     />
-                    <Input
-                        type="number"
-                        min={1}
-                        max={7 - totalDistance + (moveDetails.distances[index] || 0)}
-                        value={moveDetails.distances[index] || ''}
-                        onChange={(e) => onDistanceChange(parseInt(e.target.value) || 0, index)}
-                    />
+                    <Select
+                        value={moveDetails.distances[index]?.toString() || ''}
+                        onValueChange={(value) => onDistanceChange(parseInt(value), index)}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Distance" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {distances.map((distance) => (
+                                <SelectItem key={distance} value={distance.toString()}>
+                                    {distance}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             ))}
             <div className="flex justify-between items-center">
-                <Button onClick={addRow} disabled={rows >= 4 || totalDistance >= 7}>Add Split</Button>
+                <Button onClick={addRow} disabled={rows >= 4}>Add Split</Button>
                 <Button onClick={removeRow} disabled={rows <= 1}>Remove Split</Button>
                 <div>Total: {totalDistance}/7</div>
             </div>

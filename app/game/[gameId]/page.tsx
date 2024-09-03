@@ -69,6 +69,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
             });
 
             socket.on('moveResult', (error) => {
+                console.log(error.message);
                 setErrorMessage(error);
                 setIsAlertOpen(true);
             });

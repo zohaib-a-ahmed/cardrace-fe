@@ -109,7 +109,7 @@ We welcome contributions to Cardrace! Here's how you can contribute:
 
 Please make sure to adhere to the existing coding style with javadoc-typed annotations to code.
 
-For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.
+For major changes, please open an issue first to discuss what you would like to change. 
 
 ## License
 
